@@ -83,7 +83,7 @@ export default function App() {
   const batchFrequency = Math.max(1, sellBatchAt - monthsToLaying); 
   const requiredBatches = Math.ceil(sellBatchAt / batchFrequency);
   const totalPeakCapacity = requiredBatches * batchSize;
-  const initialLandRequired = (totalPeakCapacity / 10000).toFixed(2); // 1.5 acres per 15k birds = 1 acre per 10k birds
+  const initialLandRequired = (totalPeakCapacity / 10000).toFixed(2); // 1 acre per 10k birds
   
   // Actual eggs might be slightly higher due to rounding up birds
   const actualMonthlyEggsPerBatch = isMeatOnly ? 0 : Math.round(batchSize * eggsPerMonthPerBird);
@@ -117,9 +117,10 @@ export default function App() {
     // Simulate 60 months (5 years)
     for (let month = 1; month <= 60; month++) {
       let monthlyCost = 0;
+      let newBatchesThisMonth = 0;
+      let newBirdsThisMonth = 0;
 
       // 1. Introduce new batches
-      // If expansion is on, we add a new "stream" every expansionInterval months.
       for (let k = 0; k < numStreams; k++) {
         let startMonth = 1 + k * expansionInterval;
         
@@ -129,14 +130,17 @@ export default function App() {
           if ((month - startMonth) % batchFrequency === 0) {
             batches.push({ id: `M${month}-S${k}`, age: 0, size: batchSize });
             monthlyCost += batchSize * costPerChick; // Initial purchase cost of chicks
+            newBatchesThisMonth++;
+            newBirdsThisMonth += batchSize;
           }
         }
       }
 
       let monthlyEggs = 0;
       let monthlyMeatBirds = 0;
-      let currentChicks = 0; // Age <= monthsToLaying
-      let currentHens = 0;   // Age > monthsToLaying && Age <= sellBatchAt
+      let broodingChicks = 0; // Age 1 (First month of growth/incubation from day-old chick)
+      let growingChicks = 0;  // Age > 1 && Age <= monthsToLaying
+      let currentHens = 0;    // Age > monthsToLaying && Age <= sellBatchAt
       let growingBatchesCount = 0;
       let layingBatchesCount = 0;
 
@@ -161,8 +165,12 @@ export default function App() {
         // Snapshot active population AT THE END of the month (excludes sold birds)
         if (batch.size > 0) {
           if (batch.age <= monthsToLaying) {
-            currentChicks += batch.size;
             growingBatchesCount++;
+            if (batch.age === 1) {
+              broodingChicks += batch.size;
+            } else {
+              growingChicks += batch.size;
+            }
           } else {
             currentHens += batch.size;
             layingBatchesCount++;
@@ -183,15 +191,21 @@ export default function App() {
       total5YearMeatRev += meatRevenue;
       total5YearCost += monthlyCost;
 
+      const currentTotalChicks = broodingChicks + growingChicks;
+
       monthlyData.push({
         month,
         year: Math.ceil(month / 12),
-        currentChicks,
+        newBatchesThisMonth,
+        newBirdsThisMonth,
+        broodingChicks,
+        growingChicks,
+        currentChicks: currentTotalChicks,
         currentHens,
         growingBatchesCount,
         layingBatchesCount,
         activeBatches: batches.length,
-        totalActiveFlock: currentChicks + currentHens,
+        totalActiveFlock: currentTotalChicks + currentHens,
         monthlyEggs,
         monthlyMeatBirds,
         eggRevenue,
@@ -209,16 +223,7 @@ export default function App() {
       
       return {
         year,
-        newBatchesIntroduced: yearMonths.reduce((count, m) => {
-          let batchAdditions = 0;
-          for (let k = 0; k < numStreams; k++) {
-            let startMonth = 1 + k * expansionInterval;
-            if (m.month >= startMonth && (m.month - startMonth) % batchFrequency === 0) {
-              batchAdditions++;
-            }
-          }
-          return count + batchAdditions;
-        }, 0),
+        newBatchesIntroduced: yearMonths.reduce((sum, d) => sum + d.newBatchesThisMonth, 0),
         averageActiveFlock: Math.round(yearMonths.reduce((sum, m) => sum + m.totalActiveFlock, 0) / 12),
         yearEndTotal: yearMonths[11].totalActiveFlock,
         peakActiveFlock: Math.max(...yearMonths.map(m => m.totalActiveFlock)),
@@ -564,8 +569,77 @@ export default function App() {
             </div>
           </div>
 
+          
+
         </div>
       </main>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        {/* Monthly Detailed Schedule Table */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center">
+                <CalendarDays className="h-5 w-5 text-slate-500 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800">Monthly Batch Schedule & Phases</h2>
+              </div>
+            </div>
+            <div className="p-6 pb-4 text-sm text-slate-600 border-b border-slate-100 bg-slate-50">
+              Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
+            </div>
+            
+            <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
+                <thead className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
+                  <tr className="text-slate-500 text-sm">
+                    <th className="p-4 font-medium bg-slate-100">Month</th>
+                    <th className="p-4 font-medium text-center bg-slate-100">New Batches<br/><span className="text-xs font-normal text-slate-400">(Day-Old Chicks Added)</span></th>
+                    <th className="p-4 font-medium text-right text-indigo-700 bg-slate-100">Brooding Phase<br/><span className="text-xs font-normal text-indigo-400">(Month 1)</span></th>
+                    <th className="p-4 font-medium text-right text-blue-700 bg-slate-100">Growing Phase<br/><span className="text-xs font-normal text-blue-400">(Month 2 to {Math.min(monthsToLaying, sellBatchAt)})</span></th>
+                    <th className="p-4 font-medium text-right text-amber-700 bg-slate-100">Laying Phase<br/><span className="text-xs font-normal text-amber-500">{sellBatchAt > monthsToLaying ? `(Month ${monthsToLaying + 1} to ${sellBatchAt})` : '(N/A - Sold Before)'}</span></th>
+                    <th className="p-4 font-medium text-right text-emerald-700 bg-slate-100">Birds Sold<br/><span className="text-xs font-normal text-emerald-500">(End of Cycle)</span></th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {simulationData.monthlyData.map((data) => (
+                    <tr key={`month-${data.month}`} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="p-4 font-semibold text-slate-700">Month {data.month} <span className="text-xs text-slate-400 font-normal ml-1">(Y{data.year})</span></td>
+                      
+                      <td className="p-4 text-center">
+                        {data.newBatchesThisMonth > 0 ? (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+                            +{data.newBatchesThisMonth} Batch ({data.newBirdsThisMonth.toLocaleString('en-IN')})
+                          </span>
+                        ) : (
+                          <span className="text-slate-300">-</span>
+                        )}
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-indigo-600 bg-indigo-50/20">
+                        {data.broodingChicks > 0 ? data.broodingChicks.toLocaleString('en-IN') : '-'}
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-blue-600 bg-blue-50/20">
+                        {data.growingChicks > 0 ? data.growingChicks.toLocaleString('en-IN') : '-'}
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-amber-600 bg-amber-50/20">
+                        {data.currentHens > 0 ? data.currentHens.toLocaleString('en-IN') : '-'}
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-emerald-600 bg-emerald-50/20">
+                        {data.monthlyMeatBirds > 0 ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            {data.monthlyMeatBirds.toLocaleString('en-IN')} Sold
+                          </span>
+                        ) : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+      </div>
     </div>
   );
 }
