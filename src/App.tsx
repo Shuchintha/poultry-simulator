@@ -16,7 +16,7 @@ const BREED_PRESETS = {
     eggsPerYear: 200, monthsToLaying: 5, pricePerEgg: 8, pricePerKg: 250, avgWeight: 2, sellBatchAt: 18
   },
   'Kadaknath': {
-    eggsPerYear: 100, monthsToLaying: 6, pricePerEgg: 20, pricePerKg: 800, avgWeight: 1.5, sellBatchAt: 18
+    eggsPerYear: 120, monthsToLaying: 6, pricePerEgg: 30, pricePerKg: 350, avgWeight: 1.2, sellBatchAt: 18
   },
   'Nati Koli (Karnataka)': {
     eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 400, avgWeight: 1.4, sellBatchAt: 18
@@ -51,7 +51,7 @@ const formatINR = (amount) => {
 
 export default function App() {
   // Farm Settings - Now driven by Target Egg Sales
-  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(5000);
+  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(10000);
 
   // Breed specific settings
   const [selectedBreed, setSelectedBreed] = useState('Kadaknath');
