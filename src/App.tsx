@@ -1,153 +1,354 @@
-import React, { useState, useEffect } from "react";
-import GridLayout from "react-grid-layout";
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import { calculateSummary, generateMonthlyData } from "./calculations";
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Egg, 
+  Bird, 
+  IndianRupee, 
+  CalendarDays, 
+  Settings, 
+  TrendingUp,
+  Scale,
+  RotateCcw,
+  BarChart4
+} from 'lucide-react';
 
-const initialLayout = [
-  { i: "inputs", x: 0, y: 0, w: 4, h: 12, static: true },
-  { i: "summary", x: 4, y: 0, w: 8, h: 4 },
-  { i: "chart", x: 4, y: 4, w: 8, h: 8 },
-];
+const BREED_PRESETS = {
+  'Custom': {
+    eggsPerYear: 200, monthsToLaying: 5, pricePerEgg: 8, pricePerKg: 250, avgWeight: 2, sellBatchAt: 18
+  },
+  'Kadaknath': {
+    eggsPerYear: 100, monthsToLaying: 6, pricePerEgg: 20, pricePerKg: 800, avgWeight: 1.5, sellBatchAt: 18
+  },
+  'Kuroiler': {
+    eggsPerYear: 180, monthsToLaying: 5, pricePerEgg: 10, pricePerKg: 250, avgWeight: 2.8, sellBatchAt: 18
+  },
+  'Aseel': {
+    eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 600, avgWeight: 2.2, sellBatchAt: 24
+  },
+  'Rhode Island Red (RIR)': {
+    eggsPerYear: 260, monthsToLaying: 5, pricePerEgg: 7, pricePerKg: 180, avgWeight: 2.0, sellBatchAt: 18
+  }
+};
+
+const formatINR = (amount) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(amount);
+};
 
 export default function App() {
-  const [layout, setLayout] = useState(
-    JSON.parse(localStorage.getItem("dashboardLayout") || "null") || initialLayout
-  );
+  // Farm & Cycle Settings
+  const [batchSize, setBatchSize] = useState(500);
+  const [batchFrequency, setBatchFrequency] = useState(6); // Introduce new batch every X months
 
-  const onLayoutChange = (newLayout: any) => {
-    setLayout(newLayout);
-    localStorage.setItem("dashboardLayout", JSON.stringify(newLayout));
-  };
+  // Breed specific settings
+  const [selectedBreed, setSelectedBreed] = useState('Kuroiler');
+  const [eggsPerYear, setEggsPerYear] = useState(BREED_PRESETS['Kuroiler'].eggsPerYear);
+  const [monthsToLaying, setMonthsToLaying] = useState(BREED_PRESETS['Kuroiler'].monthsToLaying);
+  const [pricePerEgg, setPricePerEgg] = useState(BREED_PRESETS['Kuroiler'].pricePerEgg);
+  const [pricePerKg, setPricePerKg] = useState(BREED_PRESETS['Kuroiler'].pricePerKg);
+  const [avgWeight, setAvgWeight] = useState(BREED_PRESETS['Kuroiler'].avgWeight);
+  const [sellBatchAt, setSellBatchAt] = useState(BREED_PRESETS['Kuroiler'].sellBatchAt); // 12, 18, 24
 
-  const [inputs, setInputs] = useState({
-    breed: "kadaknath",
-    eggsPerYear: 100,
-    layingStartDays: 150,
-    targetEggsPerMonth: 5000,
-    eggPrice: 15,
-    meatPrice: 300,
-    bodyWeight: 1.5,
-    retirementAgeMonths: 18,
-    totalYears: 3,
-    chickCost: 50,
-    feedCostChick: 10,
-    feedCostGrower: 20,
-    feedCostLayer: 30,
-    mortalityChick: 5,
-    mortalityGrower: 2,
-    mortalityLayer: 1,
-    medicineCost: 5,
-    laborCost: 15000,
-    electricity: 2000,
-    depreciation: 1000,
-    femalePercentage: 50,
-    malePercentage: 50,
-  });
+  // Apply preset when breed changes
+  useEffect(() => {
+    if (selectedBreed !== 'Custom') {
+      const p = BREED_PRESETS[selectedBreed];
+      setEggsPerYear(p.eggsPerYear);
+      setMonthsToLaying(p.monthsToLaying);
+      setPricePerEgg(p.pricePerEgg);
+      setPricePerKg(p.pricePerKg);
+      setAvgWeight(p.avgWeight);
+      setSellBatchAt(p.sellBatchAt);
+    }
+  }, [selectedBreed]);
 
-  const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
-    setInputs((prev) => ({
-      ...prev,
-      [name]: name === "breed" ? value : Number(value) || 0,
-    }));
-  };
+  // Simulation Logic
+  const simulationData = useMemo(() => {
+    let batches = [];
+    let monthlyData = [];
+    let total5YearEggRev = 0;
+    let total5YearMeatRev = 0;
+    
+    // Simulate 60 months (5 years)
+    for (let month = 1; month <= 60; month++) {
+      // 1. Introduce new batch
+      if ((month - 1) % batchFrequency === 0) {
+        batches.push({ id: month, age: 0, size: batchSize });
+      }
 
-  const summary = calculateSummary(inputs);
+      let monthlyEggs = 0;
+      let monthlyMeatBirds = 0;
+      let currentChicks = 0; // Age <= monthsToLaying
+      let currentHens = 0;   // Age > monthsToLaying && Age <= sellBatchAt
+
+      // 2. Age batches and calculate production
+      batches.forEach(batch => {
+        batch.age += 1;
+
+        if (batch.age <= monthsToLaying) {
+          currentChicks += batch.size;
+        } else if (batch.age <= sellBatchAt) {
+          currentHens += batch.size;
+          monthlyEggs += batch.size * (eggsPerYear / 12);
+        }
+
+        // Sell batch condition
+        if (batch.age === sellBatchAt) {
+          monthlyMeatBirds += batch.size;
+          batch.size = 0; // Mark as sold
+        }
+      });
+
+      // 3. Remove sold batches from memory
+      batches = batches.filter(b => b.size > 0);
+
+      // 4. Financials
+      const eggRevenue = monthlyEggs * pricePerEgg;
+      const meatRevenue = monthlyMeatBirds * avgWeight * pricePerKg;
+      const totalRevenue = eggRevenue + meatRevenue;
+
+      total5YearEggRev += eggRevenue;
+      total5YearMeatRev += meatRevenue;
+
+      monthlyData.push({
+        month,
+        year: Math.ceil(month / 12),
+        currentChicks,
+        currentHens,
+        monthlyEggs,
+        monthlyMeatBirds,
+        eggRevenue,
+        meatRevenue,
+        totalRevenue
+      });
+    }
+
+    // 5. Aggregate into Yearly Data for tables
+    const yearlyData = Array.from({length: 5}, (_, i) => {
+      const year = i + 1;
+      const yearMonths = monthlyData.filter(d => d.year === year);
+      const endOfYearStats = yearMonths[11]; // December state
+      
+      return {
+        year,
+        endOfYearChicks: endOfYearStats.currentChicks,
+        endOfYearHens: endOfYearStats.currentHens,
+        totalEggs: yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0),
+        totalMeatBirds: yearMonths.reduce((sum, d) => sum + d.monthlyMeatBirds, 0),
+        eggRevenue: yearMonths.reduce((sum, d) => sum + d.eggRevenue, 0),
+        meatRevenue: yearMonths.reduce((sum, d) => sum + d.meatRevenue, 0),
+        totalRevenue: yearMonths.reduce((sum, d) => sum + d.totalRevenue, 0),
+      }
+    });
+
+    return { 
+      monthlyData, 
+      yearlyData, 
+      summary: {
+        totalRevenue: total5YearEggRev + total5YearMeatRev,
+        totalEggRev: total5YearEggRev,
+        totalMeatRev: total5YearMeatRev
+      } 
+    };
+  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt]);
 
   return (
-    <div className="flex h-screen bg-gray-50 flex-col md:flex-row">
-      <aside className="w-64 bg-slate-900 text-white p-5 flex-shrink-0">
-        <h2 className="text-xl font-bold mb-6">Poultry Dash</h2>
-        <nav className="space-y-4 text-sm">
-          <a href="#" className="block p-3 bg-blue-600 rounded">Chicken Revenue Analyzer</a>
-          <a href="#" className="block p-3 hover:bg-slate-800 rounded">Flock Status</a>
-        </nav>
-      </aside>
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="bg-white shadow px-6 py-4 flex-shrink-0 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Chicken Revenue Analyzer</h1>
-          <button className="text-sm bg-gray-200 px-3 py-1 rounded" onClick={() => setLayout(initialLayout)}>Reset Layout</button>
-        </header>
-        <div className="flex-1 overflow-auto p-4 relative">
-          <GridLayout
-            className="layout"
-            layout={layout}
-            cols={12}
-            rowHeight={50}
-            width={1200}
-            onLayoutChange={onLayoutChange}
-            draggableHandle=".drag-handle"
-          >
-            <div key="inputs" className="bg-white p-4 shadow-sm border border-gray-100 rounded-lg flex flex-col h-full overflow-y-auto">
-              <div className="drag-handle cursor-move bg-gray-50 px-3 py-2 mb-4 font-semibold text-gray-700 text-sm flex justify-between rounded items-center">
-                Simulation Inputs <span>⋮⋮</span>
-              </div>
-              <div className="space-y-4 pb-8">
-                <div><label className="block text-xs font-semibold text-gray-600">Breed</label>
-                <select name="breed" value={inputs.breed} onChange={handleInputChange} className="w-full mt-1 border border-gray-200 p-2 text-sm rounded"><option value="kadaknath">Kadaknath</option><option value="natikoli">Nati Koli</option></select></div>
-                <div><label className="block text-xs font-semibold text-gray-600">Target Eggs / Month</label>
-                <input type="number" name="targetEggsPerMonth" value={inputs.targetEggsPerMonth} onChange={handleInputChange} className="w-full mt-1 border border-gray-200 p-2 text-sm rounded" /></div>
-                <div><label className="block text-xs font-semibold text-gray-600">Eggs / Hen / Year</label>
-                <input type="number" name="eggsPerYear" value={inputs.eggsPerYear} onChange={handleInputChange} className="w-full mt-1 border border-gray-200 p-2 text-sm rounded" /></div>
-                <div><label className="block text-xs font-semibold text-gray-600">Egg Price (₹)</label>
-                <input type="number" name="eggPrice" value={inputs.eggPrice} onChange={handleInputChange} className="w-full mt-1 border border-gray-200 p-2 text-sm rounded" /></div>
-                <div><label className="block text-xs font-semibold text-gray-600">Meat Price / kg (₹)</label>
-                <input type="number" name="meatPrice" value={inputs.meatPrice} onChange={handleInputChange} className="w-full mt-1 border border-gray-200 p-2 text-sm rounded" /></div>
-              </div>
-            </div>
-            <div key="summary" className="bg-white p-4 shadow-sm border border-gray-100 rounded-lg flex flex-col h-full">
-              <div className="drag-handle cursor-move bg-gray-50 px-3 py-2 mb-4 font-semibold text-gray-700 text-sm flex justify-between rounded items-center">
-                Financial Summary <span>⋮⋮</span>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-green-50 p-4 rounded text-center"><p className="text-green-700 text-xs font-bold uppercase">Total Revenue (3Y)</p><p className="text-xl font-black mt-1 text-green-900">₹{summary.totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p></div>
-                <div className="bg-red-50 p-4 rounded text-center"><p className="text-red-700 text-xs font-bold uppercase">Total Costs (3Y)</p><p className="text-xl font-black mt-1 text-red-900">₹{summary.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p></div>
-                <div className="bg-blue-50 p-4 rounded text-center"><p className="text-blue-700 text-xs font-bold uppercase">Net Profit (3Y)</p><p className="text-xl font-black mt-1 text-blue-900">₹{summary.netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p></div>
-                <div className="bg-amber-50 p-4 rounded text-center"><p className="text-amber-700 text-xs font-bold uppercase">Monthly Revenue</p><p className="text-xl font-black mt-1 text-amber-900">₹{summary.monthlyRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p></div>
-              </div>
-            </div>
-            <div key="chart" className="bg-white p-4 shadow-sm border border-gray-100 rounded-lg flex flex-col h-full">
-               <div className="drag-handle cursor-move bg-gray-50 px-3 py-2 mb-4 font-semibold text-gray-700 text-sm flex justify-between rounded items-center">
-                Viral Trends <span>⋮⋮</span>
-              </div>
-              <div className="flex-1 overflow-auto rounded border border-gray-200">
-                <table className="w-full text-sm text-left text-gray-500">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
-                    <tr>
-                      <th className="px-4 py-3">Month</th>
-                      <th className="px-4 py-3">Chicks Added / Month</th>
-                      <th className="px-4 py-3">Laying Stock (Birds)</th>
-                      <th className="px-4 py-3">Eggs Produced / Month</th>
-                      <th className="px-4 py-3">Feed Cost / Month (₹)</th>
-                      <th className="px-4 py-3">Total Cost / Month (₹)</th>
-                      <th className="px-4 py-3">Revenue / Month (₹)</th>
-                      <th className="px-4 py-3">Profit / Month (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {generateMonthlyData(inputs, 60).map((row) => (
-                      <tr key={row.month} className="bg-white border-b hover:bg-gray-50">
-                        <td className="px-4 py-2 font-medium text-gray-900">{row.month}</td>
-                        <td className="px-4 py-2">{row.chicks}</td>
-                        <td className="px-4 py-2">{row.stock}</td>
-                        <td className="px-4 py-2">{row.eggs.toLocaleString()}</td>
-                        <td className="px-4 py-2">{row.feedCost.toLocaleString()}</td>
-                        <td className="px-4 py-2">{row.totalCost.toLocaleString()}</td>
-                        <td className="px-4 py-2">{row.revenue.toLocaleString()}</td>
-                        <td className={`px-4 py-2 font-medium ${row.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {row.profit >= 0 ? '+' : ''}{row.profit.toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </GridLayout>
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
+      {/* Header */}
+      <header className="bg-emerald-700 text-white py-6 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Bird className="h-8 w-8 text-emerald-200" />
+            <h1 className="text-2xl font-bold tracking-tight">Free Range Poultry Simulator (India)</h1>
+          </div>
         </div>
-        <footer className="text-center p-3 text-xs text-gray-500 flex-shrink-0 border-t">© 2026 Poultry Manager</footer>
-      </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Left Sidebar - Inputs */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
+              <Settings className="h-5 w-5 text-slate-500 mr-2" />
+              <h2 className="text-lg font-semibold text-slate-800">Farm Parameters</h2>
+            </div>
+            
+            <div className="p-6 space-y-5">
+              {/* Breed Selection */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Select Breed</label>
+                <select 
+                  className="w-full border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-emerald-500 focus:border-emerald-500"
+                  value={selectedBreed}
+                  onChange={(e) => setSelectedBreed(e.target.value)}
+                >
+                  {Object.keys(BREED_PRESETS).map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </div>
+
+              {/* Cycle Settings */}
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Batch Size (Birds)</label>
+                  <input type="number" value={batchSize} onChange={e => setBatchSize(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">New Batch Every (Mos)</label>
+                  <input type="number" value={batchFrequency} onChange={e => setBatchFrequency(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
+                </div>
+              </div>
+
+              {/* Biological Settings */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <h3 className="text-sm font-semibold text-slate-800 flex items-center"><Egg className="h-4 w-4 mr-1 text-amber-500" /> Production</h3>
+                
+                <div>
+                  <label className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                    <span>Eggs Per Year (Per Hen)</span>
+                    <span className="text-emerald-600 font-bold">{eggsPerYear}</span>
+                  </label>
+                  <input type="range" min="50" max="320" value={eggsPerYear} onChange={e => {setEggsPerYear(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full accent-emerald-600" />
+                </div>
+                
+                <div>
+                  <label className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                    <span>Months to Laying (Chick Phase)</span>
+                    <span className="text-emerald-600 font-bold">{monthsToLaying} Mos</span>
+                  </label>
+                  <input type="range" min="4" max="9" value={monthsToLaying} onChange={e => {setMonthsToLaying(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full accent-emerald-600" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Sell Batch At (Age in Months)</label>
+                  <select value={sellBatchAt} onChange={e => {setSellBatchAt(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2">
+                    <option value={12}>12 Months (1 Year)</option>
+                    <option value={18}>18 Months (1.5 Years)</option>
+                    <option value={24}>24 Months (2 Years)</option>
+                    <option value={36}>36 Months (3 Years)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Financial Settings */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <h3 className="text-sm font-semibold text-slate-800 flex items-center"><IndianRupee className="h-4 w-4 mr-1 text-emerald-600" /> Economics</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Price per Egg (₹)</label>
+                    <input type="number" value={pricePerEgg} onChange={e => {setPricePerEgg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Price per Kg (₹)</label>
+                    <input type="number" value={pricePerKg} onChange={e => {setPricePerKg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Average Weight at Sale (Kg)</label>
+                  <input type="number" step="0.1" value={avgWeight} onChange={e => {setAvgWeight(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content - Analytics & Tables */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* Top KPI Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1">Total 5-Year Revenue</div>
+              <div className="text-3xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
+            </div>
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1">Egg Revenue (5 Yrs)</div>
+              <div className="text-2xl font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
+            </div>
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1">Meat Revenue (5 Yrs)</div>
+              <div className="text-2xl font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+            </div>
+          </div>
+
+          {/* 5-Year Revenue Projection Table */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center">
+                <BarChart4 className="h-5 w-5 text-slate-500 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue Projection</h2>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                    <th className="p-4 font-medium">Year</th>
+                    <th className="p-4 font-medium text-right">Eggs Sold</th>
+                    <th className="p-4 font-medium text-right">Egg Rev</th>
+                    <th className="p-4 font-medium text-right">Birds Sold (Meat)</th>
+                    <th className="p-4 font-medium text-right">Meat Rev</th>
+                    <th className="p-4 font-medium text-right text-emerald-700 bg-emerald-50/50">Total Revenue</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {simulationData.yearlyData.map((data) => (
+                    <tr key={data.year} className="border-b border-slate-100 hover:bg-slate-50/50">
+                      <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
+                      <td className="p-4 text-right text-slate-600">{data.totalEggs.toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
+                      <td className="p-4 text-right text-slate-600">{formatINR(data.eggRevenue)}</td>
+                      <td className="p-4 text-right text-slate-600">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-right text-slate-600">{formatINR(data.meatRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-emerald-700 bg-emerald-50/30">{formatINR(data.totalRevenue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Farm Demographics Table */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
+              <RotateCcw className="h-5 w-5 text-slate-500 mr-2" />
+              <h2 className="text-lg font-semibold text-slate-800">Farm Population (End of Year Status)</h2>
+            </div>
+            <div className="p-6 text-sm text-slate-600 mb-2">
+              Showing the total number of birds active on the farm at the end of December for each year. Chicks mature into Hens at {monthsToLaying} months.
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                    <th className="p-4 font-medium">Timeline</th>
+                    <th className="p-4 font-medium text-right">Growing Chicks (0-{monthsToLaying} mos)</th>
+                    <th className="p-4 font-medium text-right">Laying Hens (&gt;{monthsToLaying} mos)</th>
+                    <th className="p-4 font-medium text-right bg-slate-100">Total Active Flock</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {simulationData.yearlyData.map((data) => (
+                    <tr key={`pop-${data.year}`} className="border-b border-slate-100 hover:bg-slate-50/50">
+                      <td className="p-4 font-semibold text-slate-700">End of Year {data.year}</td>
+                      <td className="p-4 text-right text-slate-600">{data.endOfYearChicks.toLocaleString('en-IN')} birds</td>
+                      <td className="p-4 text-right text-amber-600 font-medium">{data.endOfYearHens.toLocaleString('en-IN')} birds</td>
+                      <td className="p-4 text-right font-bold text-slate-800 bg-slate-50/50">
+                        {(data.endOfYearChicks + data.endOfYearHens).toLocaleString('en-IN')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </main>
     </div>
   );
 }

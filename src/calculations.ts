@@ -24,7 +24,7 @@ export interface FarmInputs {
   malePercentage: number;
 }
 
-export function calculateSummary(inputs: FarmInputs) {
+export function calculateSummary(inputs: FarmInputs, years: number = inputs.totalYears) {
   // Rough math approximations based on user inputs.
   const layingMonths = inputs.retirementAgeMonths - Math.ceil(inputs.layingStartDays / 30);
   const eggsPerMonthPerHen = inputs.eggsPerYear / 12;
@@ -41,13 +41,13 @@ export function calculateSummary(inputs: FarmInputs) {
   const retiredHensMonthly = hensPerMonthAdded * (1 - (inputs.mortalityLayer/100)); // Simple survival avg
   const monthlyMeatRevenue = retiredHensMonthly * inputs.bodyWeight * inputs.meatPrice;
   
-  const totalRevenue = (monthlyRevenue + monthlyMeatRevenue) * 12 * inputs.totalYears;
+  const totalRevenue = (monthlyRevenue + monthlyMeatRevenue) * 12 * years;
   
   // Cost calculation (simplified version for display)
   const monthlyFixedCost = inputs.laborCost + inputs.electricity + inputs.depreciation;
   const feedCostMonthly = totalLayingHens * inputs.feedCostLayer + (hensPerMonthAdded*2) * inputs.feedCostGrower;
   
-  const totalCost = (feedCostMonthly + monthlyFixedCost) * 12 * inputs.totalYears;
+  const totalCost = (feedCostMonthly + monthlyFixedCost) * 12 * years;
 
   return {
     totalRevenue,
@@ -55,7 +55,7 @@ export function calculateSummary(inputs: FarmInputs) {
     netProfit: totalRevenue - totalCost,
     monthlyRevenue,
     feedCostMonthly,
-    breakEvenMonth: totalRevenue > 0 ? totalCost / (totalRevenue / (inputs.totalYears * 12)) : 0
+    breakEvenMonth: totalRevenue > 0 ? totalCost / (totalRevenue / (years * 12)) : 0
   };
 }
 
