@@ -52,7 +52,7 @@ const formatINR = (amount) => {
 
 export default function App() {
   // Farm Settings - Now driven by Target Egg Sales
-  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(5000);
+  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(10000);
   
   // Business Expansion Settings
   const [isExpansionEnabled, setIsExpansionEnabled] = useState(false);
@@ -212,6 +212,7 @@ export default function App() {
         peakGrowingBatches: Math.max(...yearMonths.map(m => m.growingBatchesCount)),
         peakLayingBatches: Math.max(...yearMonths.map(m => m.layingBatchesCount)),
         totalEggs: yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0),
+        averageMonthlyEggs: Math.round(yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0) / 12),
         totalMeatBirds: yearMonths.reduce((sum, d) => sum + d.monthlyMeatBirds, 0),
         eggRevenue: yearMonths.reduce((sum, d) => sum + d.eggRevenue, 0),
         meatRevenue: yearMonths.reduce((sum, d) => sum + d.meatRevenue, 0),
@@ -470,6 +471,7 @@ export default function App() {
                     <th className="p-4 font-medium text-center bg-slate-100">Peak Total Flock<br/><span className="text-xs font-normal text-slate-400">(Max birds at once)</span></th>
                     <th className="p-4 font-medium text-right">Peak Growing Chicks<br/><span className="text-xs font-normal text-slate-400">(Max 0-{monthsToLaying} mos)</span></th>
                     <th className="p-4 font-medium text-right">Peak Laying Hens<br/><span className="text-xs font-normal text-slate-400">(Max &gt;{monthsToLaying} mos)</span></th>
+                    <th className="p-4 font-medium text-right text-amber-600">Avg Eggs/Month<br/><span className="text-xs font-normal text-amber-600/70">(Yearly average)</span></th>
                     <th className="p-4 font-medium text-right bg-slate-50">Year-End Flock<br/><span className="text-xs font-normal text-slate-400">(Dec Snapshot)</span></th>
                     <th className="p-4 font-medium text-right text-emerald-600">Birds Sold<br/><span className="text-xs font-normal text-emerald-600/70">(During Year)</span></th>
                   </tr>
@@ -490,6 +492,10 @@ export default function App() {
                       <td className="p-4 text-right text-amber-600">
                         <div className="font-medium">{data.peakHens.toLocaleString('en-IN')} birds</div>
                         <div className="text-xs text-amber-600/60">Peak: {data.peakLayingBatches} batch(es)</div>
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-amber-600">
+                        {data.averageMonthlyEggs.toLocaleString('en-IN')}
                       </td>
                       
                       <td className="p-4 text-right font-medium text-slate-700 bg-slate-50/50">
