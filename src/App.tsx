@@ -410,7 +410,7 @@ export default function App() {
             <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 shadow-sm flex flex-col justify-center">
               <div className="text-emerald-800 text-sm font-medium mb-1 flex items-center">
                 <Map className="h-4 w-4 mr-1" />
-                Peak Land Required
+                Land(1.5acres/15k birds)
               </div>
               <div className="text-xl font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
             </div>
