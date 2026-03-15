@@ -33,6 +33,9 @@ const BREED_PRESETS = {
   'Gramapriya': {
     eggsPerYear: 210, monthsToLaying: 5, pricePerEgg: 7, pricePerKg: 160, avgWeight: 1.8, sellBatchAt: 18
   },
+  'Commercial Layer (BV-300)': {
+    eggsPerYear: 320, monthsToLaying: 5, pricePerEgg: 6, pricePerKg: 100, avgWeight: 1.5, sellBatchAt: 18
+  },
   'Commercial Broiler': {
     eggsPerYear: 0, monthsToLaying: 6, pricePerEgg: 0, pricePerKg: 120, avgWeight: 2.2, sellBatchAt: 2
   }
@@ -170,6 +173,9 @@ export default function App() {
       
       return {
         year,
+        newBatchesIntroduced: yearMonths.filter(m => (m.month - 1) % batchFrequency === 0).length,
+        averageActiveFlock: Math.round(yearMonths.reduce((sum, m) => sum + m.totalActiveFlock, 0) / 12),
+        yearEndTotal: yearMonths[11].totalActiveFlock,
         peakActiveFlock: Math.max(...yearMonths.map(m => m.totalActiveFlock)),
         peakChicks: Math.max(...yearMonths.map(m => m.currentChicks)),
         peakHens: Math.max(...yearMonths.map(m => m.currentHens)),
@@ -380,9 +386,12 @@ export default function App() {
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                     <th className="p-4 font-medium">Timeline</th>
+                    <th className="p-4 font-medium text-center">New Batches<br/><span className="text-xs font-normal text-slate-400">(Started this Yr)</span></th>
+                    <th className="p-4 font-medium text-center">Avg Flock<br/><span className="text-xs font-normal text-slate-400">(Yearly average)</span></th>
                     <th className="p-4 font-medium text-center bg-slate-100">Peak Total Flock<br/><span className="text-xs font-normal text-slate-400">(Max birds at once)</span></th>
                     <th className="p-4 font-medium text-right">Peak Growing Chicks<br/><span className="text-xs font-normal text-slate-400">(Max 0-{monthsToLaying} mos)</span></th>
                     <th className="p-4 font-medium text-right">Peak Laying Hens<br/><span className="text-xs font-normal text-slate-400">(Max &gt;{monthsToLaying} mos)</span></th>
+                    <th className="p-4 font-medium text-right bg-slate-50">Year-End Flock<br/><span className="text-xs font-normal text-slate-400">(Dec Snapshot)</span></th>
                     <th className="p-4 font-medium text-right text-emerald-600">Birds Sold<br/><span className="text-xs font-normal text-emerald-600/70">(During Year)</span></th>
                   </tr>
                 </thead>
@@ -390,6 +399,8 @@ export default function App() {
                   {simulationData.yearlyData.map((data) => (
                     <tr key={`pop-${data.year}`} className="border-b border-slate-100 hover:bg-slate-50/50">
                       <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
+                      <td className="p-4 text-center text-slate-600">{data.newBatchesIntroduced}</td>
+                      <td className="p-4 text-center text-slate-600">{data.averageActiveFlock.toLocaleString('en-IN')}</td>
                       <td className="p-4 text-center font-bold text-slate-800 bg-slate-100/50">{data.peakActiveFlock.toLocaleString('en-IN')}</td>
                       
                       <td className="p-4 text-right text-slate-600">
@@ -400,6 +411,10 @@ export default function App() {
                       <td className="p-4 text-right text-amber-600">
                         <div className="font-medium">{data.peakHens.toLocaleString('en-IN')} birds</div>
                         <div className="text-xs text-amber-600/60">Peak: {data.peakLayingBatches} batch(es)</div>
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-slate-700 bg-slate-50/50">
+                        {data.yearEndTotal.toLocaleString('en-IN')}
                       </td>
                       
                       <td className="p-4 text-right font-medium text-emerald-600">
