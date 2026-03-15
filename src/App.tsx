@@ -18,14 +18,23 @@ const BREED_PRESETS = {
   'Kadaknath': {
     eggsPerYear: 100, monthsToLaying: 6, pricePerEgg: 20, pricePerKg: 800, avgWeight: 1.5, sellBatchAt: 18
   },
+  'Nati Koli (Karnataka)': {
+    eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 400, avgWeight: 1.4, sellBatchAt: 18
+  },
+  'Giriraj': {
+    eggsPerYear: 150, monthsToLaying: 6, pricePerEgg: 10, pricePerKg: 200, avgWeight: 3.0, sellBatchAt: 18
+  },
+  'Vanaraja': {
+    eggsPerYear: 110, monthsToLaying: 6, pricePerEgg: 8, pricePerKg: 180, avgWeight: 2.5, sellBatchAt: 18
+  },
   'Kuroiler': {
     eggsPerYear: 180, monthsToLaying: 5, pricePerEgg: 10, pricePerKg: 250, avgWeight: 2.8, sellBatchAt: 18
   },
-  'Aseel': {
-    eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 600, avgWeight: 2.2, sellBatchAt: 24
+  'Gramapriya': {
+    eggsPerYear: 210, monthsToLaying: 5, pricePerEgg: 7, pricePerKg: 160, avgWeight: 1.8, sellBatchAt: 18
   },
-  'Rhode Island Red (RIR)': {
-    eggsPerYear: 260, monthsToLaying: 5, pricePerEgg: 7, pricePerKg: 180, avgWeight: 2.0, sellBatchAt: 18
+  'Commercial Broiler': {
+    eggsPerYear: 0, monthsToLaying: 6, pricePerEgg: 0, pricePerKg: 120, avgWeight: 2.2, sellBatchAt: 2
   }
 };
 
@@ -38,18 +47,32 @@ const formatINR = (amount) => {
 };
 
 export default function App() {
-  // Farm & Cycle Settings
-  const [batchSize, setBatchSize] = useState(500);
-  const [batchFrequency, setBatchFrequency] = useState(6); // Introduce new batch every X months
+  // Farm Settings - Now driven by Target Egg Sales
+  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(5000);
 
   // Breed specific settings
-  const [selectedBreed, setSelectedBreed] = useState('Kuroiler');
-  const [eggsPerYear, setEggsPerYear] = useState(BREED_PRESETS['Kuroiler'].eggsPerYear);
-  const [monthsToLaying, setMonthsToLaying] = useState(BREED_PRESETS['Kuroiler'].monthsToLaying);
-  const [pricePerEgg, setPricePerEgg] = useState(BREED_PRESETS['Kuroiler'].pricePerEgg);
-  const [pricePerKg, setPricePerKg] = useState(BREED_PRESETS['Kuroiler'].pricePerKg);
-  const [avgWeight, setAvgWeight] = useState(BREED_PRESETS['Kuroiler'].avgWeight);
-  const [sellBatchAt, setSellBatchAt] = useState(BREED_PRESETS['Kuroiler'].sellBatchAt); // 12, 18, 24
+  const [selectedBreed, setSelectedBreed] = useState('Kadaknath');
+  const [eggsPerYear, setEggsPerYear] = useState(BREED_PRESETS['Kadaknath'].eggsPerYear);
+  const [monthsToLaying, setMonthsToLaying] = useState(BREED_PRESETS['Kadaknath'].monthsToLaying);
+  const [pricePerEgg, setPricePerEgg] = useState(BREED_PRESETS['Kadaknath'].pricePerEgg);
+  const [pricePerKg, setPricePerKg] = useState(BREED_PRESETS['Kadaknath'].pricePerKg);
+  const [avgWeight, setAvgWeight] = useState(BREED_PRESETS['Kadaknath'].avgWeight);
+  const [sellBatchAt, setSellBatchAt] = useState(BREED_PRESETS['Kadaknath'].sellBatchAt); // 12, 18, 24
+
+  // AUTO-CALCULATED CYCLE METRICS
+  const isMeatOnly = eggsPerYear === 0;
+
+  // Calculate required batch size to hit the monthly egg target
+  const eggsPerMonthPerBird = eggsPerYear / 12;
+  const batchSize = isMeatOnly ? targetMonthlyEggs : Math.ceil(targetMonthlyEggs / eggsPerMonthPerBird);
+  
+  // Frequency ensures a new batch starts laying exactly when the old one is sold
+  const batchFrequency = Math.max(1, sellBatchAt - monthsToLaying); 
+  const requiredBatches = Math.ceil(sellBatchAt / batchFrequency);
+  const totalPeakCapacity = requiredBatches * batchSize;
+  
+  // Actual eggs might be slightly higher due to rounding up birds
+  const actualMonthlyEggsPerBatch = isMeatOnly ? 0 : Math.round(batchSize * eggsPerMonthPerBird);
 
   // Apply preset when breed changes
   useEffect(() => {
@@ -73,7 +96,7 @@ export default function App() {
     
     // Simulate 60 months (5 years)
     for (let month = 1; month <= 60; month++) {
-      // 1. Introduce new batch
+      // 1. Introduce new batch based on auto-calculated frequency
       if ((month - 1) % batchFrequency === 0) {
         batches.push({ id: month, age: 0, size: batchSize });
       }
@@ -82,22 +105,33 @@ export default function App() {
       let monthlyMeatBirds = 0;
       let currentChicks = 0; // Age <= monthsToLaying
       let currentHens = 0;   // Age > monthsToLaying && Age <= sellBatchAt
+      let growingBatchesCount = 0;
+      let layingBatchesCount = 0;
 
       // 2. Age batches and calculate production
       batches.forEach(batch => {
         batch.age += 1;
 
-        if (batch.age <= monthsToLaying) {
-          currentChicks += batch.size;
-        } else if (batch.age <= sellBatchAt) {
-          currentHens += batch.size;
+        // Calculate egg production for mature hens before they are potentially sold
+        if (batch.age > monthsToLaying && batch.age <= sellBatchAt) {
           monthlyEggs += batch.size * (eggsPerYear / 12);
         }
 
-        // Sell batch condition
+        // Sell batch condition (birds reach selling age this month)
         if (batch.age === sellBatchAt) {
           monthlyMeatBirds += batch.size;
           batch.size = 0; // Mark as sold
+        }
+
+        // Snapshot active population AT THE END of the month (excludes sold birds)
+        if (batch.size > 0) {
+          if (batch.age <= monthsToLaying) {
+            currentChicks += batch.size;
+            growingBatchesCount++;
+          } else {
+            currentHens += batch.size;
+            layingBatchesCount++;
+          }
         }
       });
 
@@ -117,6 +151,10 @@ export default function App() {
         year: Math.ceil(month / 12),
         currentChicks,
         currentHens,
+        growingBatchesCount,
+        layingBatchesCount,
+        activeBatches: batches.length,
+        totalActiveFlock: currentChicks + currentHens,
         monthlyEggs,
         monthlyMeatBirds,
         eggRevenue,
@@ -129,12 +167,14 @@ export default function App() {
     const yearlyData = Array.from({length: 5}, (_, i) => {
       const year = i + 1;
       const yearMonths = monthlyData.filter(d => d.year === year);
-      const endOfYearStats = yearMonths[11]; // December state
       
       return {
         year,
-        endOfYearChicks: endOfYearStats.currentChicks,
-        endOfYearHens: endOfYearStats.currentHens,
+        peakActiveFlock: Math.max(...yearMonths.map(m => m.totalActiveFlock)),
+        peakChicks: Math.max(...yearMonths.map(m => m.currentChicks)),
+        peakHens: Math.max(...yearMonths.map(m => m.currentHens)),
+        peakGrowingBatches: Math.max(...yearMonths.map(m => m.growingBatchesCount)),
+        peakLayingBatches: Math.max(...yearMonths.map(m => m.layingBatchesCount)),
         totalEggs: yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0),
         totalMeatBirds: yearMonths.reduce((sum, d) => sum + d.monthlyMeatBirds, 0),
         eggRevenue: yearMonths.reduce((sum, d) => sum + d.eggRevenue, 0),
@@ -190,14 +230,26 @@ export default function App() {
               </div>
 
               {/* Cycle Settings */}
-              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Batch Size (Birds)</label>
-                  <input type="number" value={batchSize} onChange={e => setBatchSize(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
+              <div className="pt-2 border-t border-slate-100">
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    {isMeatOnly ? "Target Monthly Meat Bird Sales" : "Target Monthly Egg Sales"}
+                  </label>
+                  <input type="number" step="100" value={targetMonthlyEggs} onChange={e => setTargetMonthlyEggs(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">New Batch Every (Mos)</label>
-                  <input type="number" value={batchFrequency} onChange={e => setBatchFrequency(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
+                
+                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs font-semibold text-emerald-800">Replacement Cycle (Auto)</span>
+                    <span className="text-sm font-bold text-emerald-700">Every {batchFrequency} Mos</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-700 leading-tight">
+                    {isMeatOnly ? (
+                      <>To achieve <b>{batchSize.toLocaleString('en-IN')} meat birds/month</b>, you will need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>. You will maintain up to <b>{requiredBatches} concurrent batch(es)</b> on the farm at peak, requiring a total farm capacity of <b>{totalPeakCapacity.toLocaleString('en-IN')} birds</b>.</>
+                    ) : (
+                      <>To achieve ~<b>{actualMonthlyEggsPerBatch.toLocaleString('en-IN')} eggs/month</b>, you will need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>. You will maintain up to <b>{requiredBatches} concurrent batch(es)</b> on the farm at peak, requiring a total farm capacity of <b>{totalPeakCapacity.toLocaleString('en-IN')} birds</b>.</>
+                    )}
+                  </p>
                 </div>
               </div>
 
@@ -210,7 +262,7 @@ export default function App() {
                     <span>Eggs Per Year (Per Hen)</span>
                     <span className="text-emerald-600 font-bold">{eggsPerYear}</span>
                   </label>
-                  <input type="range" min="50" max="320" value={eggsPerYear} onChange={e => {setEggsPerYear(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full accent-emerald-600" />
+                  <input type="range" min="0" max="320" value={eggsPerYear} onChange={e => {setEggsPerYear(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full accent-emerald-600" />
                 </div>
                 
                 <div>
@@ -224,6 +276,8 @@ export default function App() {
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Sell Batch At (Age in Months)</label>
                   <select value={sellBatchAt} onChange={e => {setSellBatchAt(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2">
+                    <option value={2}>2 Months (Broiler/Meat)</option>
+                    <option value={6}>6 Months</option>
                     <option value={12}>12 Months (1 Year)</option>
                     <option value={18}>18 Months (1.5 Years)</option>
                     <option value={24}>24 Months (2 Years)</option>
@@ -316,29 +370,40 @@ export default function App() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
               <RotateCcw className="h-5 w-5 text-slate-500 mr-2" />
-              <h2 className="text-lg font-semibold text-slate-800">Farm Population (End of Year Status)</h2>
+              <h2 className="text-lg font-semibold text-slate-800">Farm Population Dynamics</h2>
             </div>
             <div className="p-6 text-sm text-slate-600 mb-2">
-              Showing the total number of birds active on the farm at the end of December for each year. Chicks mature into Hens at {monthsToLaying} months.
+              Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                     <th className="p-4 font-medium">Timeline</th>
-                    <th className="p-4 font-medium text-right">Growing Chicks (0-{monthsToLaying} mos)</th>
-                    <th className="p-4 font-medium text-right">Laying Hens (&gt;{monthsToLaying} mos)</th>
-                    <th className="p-4 font-medium text-right bg-slate-100">Total Active Flock</th>
+                    <th className="p-4 font-medium text-center bg-slate-100">Peak Total Flock<br/><span className="text-xs font-normal text-slate-400">(Max birds at once)</span></th>
+                    <th className="p-4 font-medium text-right">Peak Growing Chicks<br/><span className="text-xs font-normal text-slate-400">(Max 0-{monthsToLaying} mos)</span></th>
+                    <th className="p-4 font-medium text-right">Peak Laying Hens<br/><span className="text-xs font-normal text-slate-400">(Max &gt;{monthsToLaying} mos)</span></th>
+                    <th className="p-4 font-medium text-right text-emerald-600">Birds Sold<br/><span className="text-xs font-normal text-emerald-600/70">(During Year)</span></th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {simulationData.yearlyData.map((data) => (
                     <tr key={`pop-${data.year}`} className="border-b border-slate-100 hover:bg-slate-50/50">
-                      <td className="p-4 font-semibold text-slate-700">End of Year {data.year}</td>
-                      <td className="p-4 text-right text-slate-600">{data.endOfYearChicks.toLocaleString('en-IN')} birds</td>
-                      <td className="p-4 text-right text-amber-600 font-medium">{data.endOfYearHens.toLocaleString('en-IN')} birds</td>
-                      <td className="p-4 text-right font-bold text-slate-800 bg-slate-50/50">
-                        {(data.endOfYearChicks + data.endOfYearHens).toLocaleString('en-IN')}
+                      <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
+                      <td className="p-4 text-center font-bold text-slate-800 bg-slate-100/50">{data.peakActiveFlock.toLocaleString('en-IN')}</td>
+                      
+                      <td className="p-4 text-right text-slate-600">
+                        <div className="font-medium">{data.peakChicks.toLocaleString('en-IN')} birds</div>
+                        <div className="text-xs text-slate-400">Peak: {data.peakGrowingBatches} batch(es)</div>
+                      </td>
+                      
+                      <td className="p-4 text-right text-amber-600">
+                        <div className="font-medium">{data.peakHens.toLocaleString('en-IN')} birds</div>
+                        <div className="text-xs text-amber-600/60">Peak: {data.peakLayingBatches} batch(es)</div>
+                      </td>
+                      
+                      <td className="p-4 text-right font-medium text-emerald-600">
+                        {data.totalMeatBirds.toLocaleString('en-IN')}
                       </td>
                     </tr>
                   ))}
