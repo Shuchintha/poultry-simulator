@@ -8,7 +8,8 @@ import {
   TrendingUp,
   Scale,
   RotateCcw,
-  BarChart4
+  BarChart4,
+  Map
 } from 'lucide-react';
 
 const BREED_PRESETS = {
@@ -16,7 +17,7 @@ const BREED_PRESETS = {
     eggsPerYear: 200, monthsToLaying: 5, pricePerEgg: 8, pricePerKg: 250, avgWeight: 2, sellBatchAt: 18
   },
   'Kadaknath': {
-    eggsPerYear: 120, monthsToLaying: 6, pricePerEgg: 30, pricePerKg: 350, avgWeight: 1.2, sellBatchAt: 18
+    eggsPerYear: 120, monthsToLaying: 6, pricePerEgg: 30, pricePerKg: 350, avgWeight: 1.3, sellBatchAt: 18
   },
   'Nati Koli (Karnataka)': {
     eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 400, avgWeight: 1.4, sellBatchAt: 18
@@ -51,7 +52,11 @@ const formatINR = (amount) => {
 
 export default function App() {
   // Farm Settings - Now driven by Target Egg Sales
-  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(10000);
+  const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(5000);
+  
+  // Business Expansion Settings
+  const [isExpansionEnabled, setIsExpansionEnabled] = useState(false);
+  const [expansionInterval, setExpansionInterval] = useState(6);
 
   // Breed specific settings
   const [selectedBreed, setSelectedBreed] = useState('Kadaknath');
@@ -73,6 +78,7 @@ export default function App() {
   const batchFrequency = Math.max(1, sellBatchAt - monthsToLaying); 
   const requiredBatches = Math.ceil(sellBatchAt / batchFrequency);
   const totalPeakCapacity = requiredBatches * batchSize;
+  const initialLandRequired = (totalPeakCapacity / 10000).toFixed(2); // 1.5 acres per 15k birds = 1 acre per 10k birds
   
   // Actual eggs might be slightly higher due to rounding up birds
   const actualMonthlyEggsPerBatch = isMeatOnly ? 0 : Math.round(batchSize * eggsPerMonthPerBird);
@@ -97,11 +103,24 @@ export default function App() {
     let total5YearEggRev = 0;
     let total5YearMeatRev = 0;
     
+    // Calculate how many streams of expansion we'll potentially need (5 years = 60 months)
+    let numStreams = isExpansionEnabled ? Math.floor(59 / expansionInterval) + 1 : 1;
+    
     // Simulate 60 months (5 years)
     for (let month = 1; month <= 60; month++) {
-      // 1. Introduce new batch based on auto-calculated frequency
-      if ((month - 1) % batchFrequency === 0) {
-        batches.push({ id: month, age: 0, size: batchSize });
+      
+      // 1. Introduce new batches
+      // If expansion is on, we add a new "stream" every expansionInterval months.
+      for (let k = 0; k < numStreams; k++) {
+        let startMonth = 1 + k * expansionInterval;
+        
+        // If we have reached the month where this stream begins
+        if (month >= startMonth) {
+          // Introduce a replacement batch on this stream's specific frequency cadence
+          if ((month - startMonth) % batchFrequency === 0) {
+            batches.push({ id: `M${month}-S${k}`, age: 0, size: batchSize });
+          }
+        }
       }
 
       let monthlyEggs = 0;
@@ -173,7 +192,18 @@ export default function App() {
       
       return {
         year,
-        newBatchesIntroduced: yearMonths.filter(m => (m.month - 1) % batchFrequency === 0).length,
+        // Count batches introduced this year by checking if they are at age 1 in that month
+        // Or simpler, count instances where (month - startMonth) % batchFrequency === 0
+        newBatchesIntroduced: yearMonths.reduce((count, m) => {
+          let batchAdditions = 0;
+          for (let k = 0; k < numStreams; k++) {
+            let startMonth = 1 + k * expansionInterval;
+            if (m.month >= startMonth && (m.month - startMonth) % batchFrequency === 0) {
+              batchAdditions++;
+            }
+          }
+          return count + batchAdditions;
+        }, 0),
         averageActiveFlock: Math.round(yearMonths.reduce((sum, m) => sum + m.totalActiveFlock, 0) / 12),
         yearEndTotal: yearMonths[11].totalActiveFlock,
         peakActiveFlock: Math.max(...yearMonths.map(m => m.totalActiveFlock)),
@@ -189,16 +219,19 @@ export default function App() {
       }
     });
 
+    const maxFlockAcross5Years = Math.max(...yearlyData.map(d => d.peakActiveFlock));
+
     return { 
       monthlyData, 
       yearlyData, 
       summary: {
         totalRevenue: total5YearEggRev + total5YearMeatRev,
         totalEggRev: total5YearEggRev,
-        totalMeatRev: total5YearMeatRev
+        totalMeatRev: total5YearMeatRev,
+        peakLandRequired: (maxFlockAcross5Years / 10000).toFixed(2)
       } 
     };
-  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt]);
+  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt, isExpansionEnabled, expansionInterval]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
@@ -235,25 +268,64 @@ export default function App() {
                 </select>
               </div>
 
-              {/* Cycle Settings */}
+              {/* Cycle Settings & Expansion */}
               <div className="pt-2 border-t border-slate-100">
                 <div className="mb-4">
                   <label className="block text-xs font-medium text-slate-500 mb-1">
-                    {isMeatOnly ? "Target Monthly Meat Bird Sales" : "Target Monthly Egg Sales"}
+                    {isMeatOnly ? "Initial Monthly Meat Bird Target" : "Initial Monthly Egg Target"}
                   </label>
                   <input type="number" step="100" value={targetMonthlyEggs} onChange={e => setTargetMonthlyEggs(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
+                  
+                  {/* Expansion Checkbox */}
+                  <div className="flex items-center mt-3">
+                    <input
+                      type="checkbox"
+                      id="expansion"
+                      checked={isExpansionEnabled}
+                      onChange={(e) => setIsExpansionEnabled(e.target.checked)}
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
+                    />
+                    <label htmlFor="expansion" className="ml-2 block text-sm font-medium text-slate-700">
+                      Auto-Expand Business
+                    </label>
+                  </div>
+                  
+                  {/* Expansion Dropdown (Conditional) */}
+                  {isExpansionEnabled && (
+                    <div className="mt-3 ml-6 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                      <label className="block text-xs font-medium text-slate-600 mb-1">Add Farm Capacity Every:</label>
+                      <select
+                        value={expansionInterval}
+                        onChange={(e) => setExpansionInterval(Number(e.target.value))}
+                        className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white focus:ring-emerald-500 focus:border-emerald-500"
+                      >
+                        <option value={6}>6 Months (Aggressive Growth)</option>
+                        <option value={12}>12 Months (Steady Growth)</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-semibold text-emerald-800">Replacement Cycle (Auto)</span>
-                    <span className="text-sm font-bold text-emerald-700">Every {batchFrequency} Mos</span>
+                    <span className="text-sm font-bold text-emerald-700">Base: Every {batchFrequency} Mos</span>
                   </div>
                   <p className="text-[11px] text-emerald-700 leading-tight">
                     {isMeatOnly ? (
-                      <>To achieve <b>{batchSize.toLocaleString('en-IN')} meat birds/month</b>, you will need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>. You will maintain up to <b>{requiredBatches} concurrent batch(es)</b> on the farm at peak, requiring a total farm capacity of <b>{totalPeakCapacity.toLocaleString('en-IN')} birds</b>.</>
+                      <>To achieve <b>{batchSize.toLocaleString('en-IN')} meat birds/month</b> initially, you need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>.</>
                     ) : (
-                      <>To achieve ~<b>{actualMonthlyEggsPerBatch.toLocaleString('en-IN')} eggs/month</b>, you will need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>. You will maintain up to <b>{requiredBatches} concurrent batch(es)</b> on the farm at peak, requiring a total farm capacity of <b>{totalPeakCapacity.toLocaleString('en-IN')} birds</b>.</>
+                      <>To achieve ~<b>{actualMonthlyEggsPerBatch.toLocaleString('en-IN')} eggs/month</b> initially, you need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>.</>
+                    )}
+                    
+                    {isExpansionEnabled ? (
+                      <span className="block mt-2 font-semibold text-emerald-800">
+                        Expansion ON: A new production stream is added every {expansionInterval} months, continuously compounding your capacity!
+                      </span>
+                    ) : (
+                      <span className="block mt-2">
+                        You will maintain up to <b>{requiredBatches} concurrent batch(es)</b> on the farm at peak, requiring an initial farm capacity of <b>{totalPeakCapacity.toLocaleString('en-IN')} birds</b> (approx <b>{initialLandRequired} Acres</b>).
+                      </span>
                     )}
                   </p>
                 </div>
@@ -321,18 +393,25 @@ export default function App() {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Top KPI Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
               <div className="text-slate-500 text-sm font-medium mb-1">Total 5-Year Revenue</div>
-              <div className="text-3xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
+              <div className="text-xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
             </div>
             <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
               <div className="text-slate-500 text-sm font-medium mb-1">Egg Revenue (5 Yrs)</div>
-              <div className="text-2xl font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
+              <div className="text-xl font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
             </div>
             <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
               <div className="text-slate-500 text-sm font-medium mb-1">Meat Revenue (5 Yrs)</div>
-              <div className="text-2xl font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+              <div className="text-xl font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+            </div>
+            <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 text-sm font-medium mb-1 flex items-center">
+                <Map className="h-4 w-4 mr-1" />
+                Peak Land Required
+              </div>
+              <div className="text-xl font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
             </div>
           </div>
 
