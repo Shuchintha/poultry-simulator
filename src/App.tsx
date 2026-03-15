@@ -6,39 +6,42 @@ import {
   CalendarDays, 
   Settings, 
   TrendingUp,
+  TrendingDown,
   Scale,
   RotateCcw,
   BarChart4,
-  Map
+  Map,
+  Wallet,
+  Coins
 } from 'lucide-react';
 
 const BREED_PRESETS = {
   'Custom': {
-    eggsPerYear: 200, monthsToLaying: 5, pricePerEgg: 8, pricePerKg: 250, avgWeight: 2, sellBatchAt: 18
+    eggsPerYear: 200, monthsToLaying: 5, pricePerEgg: 8, pricePerKg: 250, avgWeight: 2, sellBatchAt: 18, costPerChick: 30, monthlyCostPerBird: 60
   },
   'Kadaknath': {
-    eggsPerYear: 120, monthsToLaying: 6, pricePerEgg: 30, pricePerKg: 350, avgWeight: 1.3, sellBatchAt: 18
+    eggsPerYear: 120, monthsToLaying: 6, pricePerEgg: 30, pricePerKg: 300, avgWeight: 1.3, sellBatchAt: 18, costPerChick: 60, monthlyCostPerBird: 60
   },
   'Nati Koli (Karnataka)': {
-    eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 400, avgWeight: 1.4, sellBatchAt: 18
+    eggsPerYear: 70, monthsToLaying: 7, pricePerEgg: 15, pricePerKg: 400, avgWeight: 1.4, sellBatchAt: 18, costPerChick: 40, monthlyCostPerBird: 50
   },
   'Giriraj': {
-    eggsPerYear: 150, monthsToLaying: 6, pricePerEgg: 10, pricePerKg: 200, avgWeight: 3.0, sellBatchAt: 18
+    eggsPerYear: 150, monthsToLaying: 6, pricePerEgg: 10, pricePerKg: 200, avgWeight: 3.0, sellBatchAt: 18, costPerChick: 35, monthlyCostPerBird: 80
   },
   'Vanaraja': {
-    eggsPerYear: 110, monthsToLaying: 6, pricePerEgg: 8, pricePerKg: 180, avgWeight: 2.5, sellBatchAt: 18
+    eggsPerYear: 110, monthsToLaying: 6, pricePerEgg: 8, pricePerKg: 180, avgWeight: 2.5, sellBatchAt: 18, costPerChick: 35, monthlyCostPerBird: 80
   },
   'Kuroiler': {
-    eggsPerYear: 180, monthsToLaying: 5, pricePerEgg: 10, pricePerKg: 250, avgWeight: 2.8, sellBatchAt: 18
+    eggsPerYear: 180, monthsToLaying: 5, pricePerEgg: 10, pricePerKg: 250, avgWeight: 2.8, sellBatchAt: 18, costPerChick: 35, monthlyCostPerBird: 80
   },
   'Gramapriya': {
-    eggsPerYear: 210, monthsToLaying: 5, pricePerEgg: 7, pricePerKg: 160, avgWeight: 1.8, sellBatchAt: 18
+    eggsPerYear: 210, monthsToLaying: 5, pricePerEgg: 7, pricePerKg: 160, avgWeight: 1.8, sellBatchAt: 18, costPerChick: 35, monthlyCostPerBird: 70
   },
   'Commercial Layer (BV-300)': {
-    eggsPerYear: 320, monthsToLaying: 5, pricePerEgg: 6, pricePerKg: 100, avgWeight: 1.5, sellBatchAt: 18
+    eggsPerYear: 320, monthsToLaying: 5, pricePerEgg: 6, pricePerKg: 100, avgWeight: 1.5, sellBatchAt: 18, costPerChick: 45, monthlyCostPerBird: 100
   },
   'Commercial Broiler': {
-    eggsPerYear: 0, monthsToLaying: 6, pricePerEgg: 0, pricePerKg: 120, avgWeight: 2.2, sellBatchAt: 2
+    eggsPerYear: 0, monthsToLaying: 6, pricePerEgg: 0, pricePerKg: 120, avgWeight: 2.2, sellBatchAt: 2, costPerChick: 40, monthlyCostPerBird: 120
   }
 };
 
@@ -65,7 +68,9 @@ export default function App() {
   const [pricePerEgg, setPricePerEgg] = useState(BREED_PRESETS['Kadaknath'].pricePerEgg);
   const [pricePerKg, setPricePerKg] = useState(BREED_PRESETS['Kadaknath'].pricePerKg);
   const [avgWeight, setAvgWeight] = useState(BREED_PRESETS['Kadaknath'].avgWeight);
-  const [sellBatchAt, setSellBatchAt] = useState(BREED_PRESETS['Kadaknath'].sellBatchAt); // 12, 18, 24
+  const [sellBatchAt, setSellBatchAt] = useState(BREED_PRESETS['Kadaknath'].sellBatchAt);
+  const [costPerChick, setCostPerChick] = useState(BREED_PRESETS['Kadaknath'].costPerChick);
+  const [monthlyCostPerBird, setMonthlyCostPerBird] = useState(BREED_PRESETS['Kadaknath'].monthlyCostPerBird);
 
   // AUTO-CALCULATED CYCLE METRICS
   const isMeatOnly = eggsPerYear === 0;
@@ -93,6 +98,8 @@ export default function App() {
       setPricePerKg(p.pricePerKg);
       setAvgWeight(p.avgWeight);
       setSellBatchAt(p.sellBatchAt);
+      setCostPerChick(p.costPerChick);
+      setMonthlyCostPerBird(p.monthlyCostPerBird);
     }
   }, [selectedBreed]);
 
@@ -102,13 +109,15 @@ export default function App() {
     let monthlyData = [];
     let total5YearEggRev = 0;
     let total5YearMeatRev = 0;
+    let total5YearCost = 0;
     
     // Calculate how many streams of expansion we'll potentially need (5 years = 60 months)
     let numStreams = isExpansionEnabled ? Math.floor(59 / expansionInterval) + 1 : 1;
     
     // Simulate 60 months (5 years)
     for (let month = 1; month <= 60; month++) {
-      
+      let monthlyCost = 0;
+
       // 1. Introduce new batches
       // If expansion is on, we add a new "stream" every expansionInterval months.
       for (let k = 0; k < numStreams; k++) {
@@ -119,6 +128,7 @@ export default function App() {
           // Introduce a replacement batch on this stream's specific frequency cadence
           if ((month - startMonth) % batchFrequency === 0) {
             batches.push({ id: `M${month}-S${k}`, age: 0, size: batchSize });
+            monthlyCost += batchSize * costPerChick; // Initial purchase cost of chicks
           }
         }
       }
@@ -133,6 +143,9 @@ export default function App() {
       // 2. Age batches and calculate production
       batches.forEach(batch => {
         batch.age += 1;
+
+        // Add monthly feed and maintenance cost for this batch
+        monthlyCost += batch.size * monthlyCostPerBird;
 
         // Calculate egg production for mature hens before they are potentially sold
         if (batch.age > monthsToLaying && batch.age <= sellBatchAt) {
@@ -164,9 +177,11 @@ export default function App() {
       const eggRevenue = monthlyEggs * pricePerEgg;
       const meatRevenue = monthlyMeatBirds * avgWeight * pricePerKg;
       const totalRevenue = eggRevenue + meatRevenue;
+      const netProfit = totalRevenue - monthlyCost;
 
       total5YearEggRev += eggRevenue;
       total5YearMeatRev += meatRevenue;
+      total5YearCost += monthlyCost;
 
       monthlyData.push({
         month,
@@ -181,7 +196,9 @@ export default function App() {
         monthlyMeatBirds,
         eggRevenue,
         meatRevenue,
-        totalRevenue
+        totalRevenue,
+        monthlyCost,
+        netProfit
       });
     }
 
@@ -192,8 +209,6 @@ export default function App() {
       
       return {
         year,
-        // Count batches introduced this year by checking if they are at age 1 in that month
-        // Or simpler, count instances where (month - startMonth) % batchFrequency === 0
         newBatchesIntroduced: yearMonths.reduce((count, m) => {
           let batchAdditions = 0;
           for (let k = 0; k < numStreams; k++) {
@@ -217,6 +232,8 @@ export default function App() {
         eggRevenue: yearMonths.reduce((sum, d) => sum + d.eggRevenue, 0),
         meatRevenue: yearMonths.reduce((sum, d) => sum + d.meatRevenue, 0),
         totalRevenue: yearMonths.reduce((sum, d) => sum + d.totalRevenue, 0),
+        totalCost: yearMonths.reduce((sum, d) => sum + d.monthlyCost, 0),
+        totalProfit: yearMonths.reduce((sum, d) => sum + d.netProfit, 0),
       }
     });
 
@@ -227,12 +244,14 @@ export default function App() {
       yearlyData, 
       summary: {
         totalRevenue: total5YearEggRev + total5YearMeatRev,
+        totalCost: total5YearCost,
+        netProfit: (total5YearEggRev + total5YearMeatRev) - total5YearCost,
         totalEggRev: total5YearEggRev,
         totalMeatRev: total5YearMeatRev,
         peakLandRequired: (maxFlockAcross5Years / 10000).toFixed(2)
       } 
     };
-  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt, isExpansionEnabled, expansionInterval]);
+  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt, costPerChick, monthlyCostPerBird, isExpansionEnabled, expansionInterval]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
@@ -367,7 +386,7 @@ export default function App() {
 
               {/* Financial Settings */}
               <div className="space-y-4 pt-4 border-t border-slate-100">
-                <h3 className="text-sm font-semibold text-slate-800 flex items-center"><IndianRupee className="h-4 w-4 mr-1 text-emerald-600" /> Economics</h3>
+                <h3 className="text-sm font-semibold text-slate-800 flex items-center"><IndianRupee className="h-4 w-4 mr-1 text-emerald-600" /> Economics & Costs</h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -377,6 +396,17 @@ export default function App() {
                   <div>
                     <label className="block text-xs font-medium text-slate-500 mb-1">Price per Kg (₹)</label>
                     <input type="number" value={pricePerKg} onChange={e => {setPricePerKg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Chick Cost (₹/bird)</label>
+                    <input type="number" value={costPerChick} onChange={e => {setCostPerChick(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2 bg-rose-50/50" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Feed/Upkeep (₹/mo)</label>
+                    <input type="number" value={monthlyCostPerBird} onChange={e => {setMonthlyCostPerBird(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2 bg-rose-50/50" />
                   </div>
                 </div>
 
@@ -394,25 +424,41 @@ export default function App() {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Top KPI Summary */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1">Total 5-Year Revenue</div>
-              <div className="text-xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
-            </div>
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1">Egg Revenue (5 Yrs)</div>
-              <div className="text-xl font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
-            </div>
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1">Meat Revenue (5 Yrs)</div>
-              <div className="text-xl font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
-            </div>
-            <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 shadow-sm flex flex-col justify-center">
-              <div className="text-emerald-800 text-sm font-medium mb-1 flex items-center">
-                <Map className="h-4 w-4 mr-1" />
-                Land(1.5acres/15k birds)
+              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Total 5-Yr Revenue
               </div>
-              <div className="text-xl font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
+              <div className="text-2xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
+            </div>
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+                <TrendingDown className="h-4 w-4 mr-1 text-rose-500" /> Total 5-Yr Cost
+              </div>
+              <div className="text-2xl font-bold text-rose-600">{formatINR(simulationData.summary.totalCost)}</div>
+            </div>
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-rose-50 border-rose-200'}`}>
+              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
+                <Wallet className="h-4 w-4 mr-1" /> 5-Yr Net Profit
+              </div>
+              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-blue-700' : 'text-rose-700'}`}>
+                {formatINR(simulationData.summary.netProfit)}
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-xs font-medium mb-1">Egg Revenue</div>
+              <div className="text-lg font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-xs font-medium mb-1">Meat Revenue</div>
+              <div className="text-lg font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+            </div>
+            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 text-xs font-medium mb-1 flex items-center">
+                <Map className="h-3 w-3 mr-1" /> Peak Land Required
+              </div>
+              <div className="text-lg font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
             </div>
           </div>
 
@@ -421,11 +467,11 @@ export default function App() {
             <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center">
                 <BarChart4 className="h-5 w-5 text-slate-500 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue Projection</h2>
+                <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue & Profit Projection</h2>
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                     <th className="p-4 font-medium">Year</th>
@@ -433,7 +479,9 @@ export default function App() {
                     <th className="p-4 font-medium text-right">Egg Rev</th>
                     <th className="p-4 font-medium text-right">Birds Sold (Meat)</th>
                     <th className="p-4 font-medium text-right">Meat Rev</th>
-                    <th className="p-4 font-medium text-right text-emerald-700 bg-emerald-50/50">Total Revenue</th>
+                    <th className="p-4 font-medium text-right text-emerald-700 bg-emerald-50/50">Total Rev</th>
+                    <th className="p-4 font-medium text-right text-rose-700 bg-rose-50/50">Total Cost</th>
+                    <th className="p-4 font-medium text-right text-blue-700 bg-blue-50/50">Net Profit</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -445,6 +493,10 @@ export default function App() {
                       <td className="p-4 text-right text-slate-600">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
                       <td className="p-4 text-right text-slate-600">{formatINR(data.meatRevenue)}</td>
                       <td className="p-4 text-right font-bold text-emerald-700 bg-emerald-50/30">{formatINR(data.totalRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-rose-600 bg-rose-50/30">{formatINR(data.totalCost)}</td>
+                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-blue-700 bg-blue-50/30' : 'text-rose-700 bg-rose-50/30'}`}>
+                        {formatINR(data.totalProfit)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
