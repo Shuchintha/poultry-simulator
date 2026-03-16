@@ -14,8 +14,14 @@ import {
   Wallet,
   Wrench,
   Tractor,
-  Leaf
+  Leaf,
+  TableProperties,
+  LineChart as LineChartIcon
 } from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, 
+  LineChart, Line, AreaChart, Area, ComposedChart 
+} from 'recharts';
 
 
 const BREED_PRESETS = {
@@ -57,6 +63,12 @@ const formatINR = (amount: number) => {
 };
 
 function Simulator() {
+  // View Toggle States
+  const [viewPopulation, setViewPopulation] = useState<'table' | 'chart'>('table');
+  const [viewFinancials, setViewFinancials] = useState<'table' | 'chart'>('table');
+  const [viewInfra, setViewInfra] = useState<'table' | 'chart'>('table');
+  const [viewSchedule, setViewSchedule] = useState<'table' | 'chart'>('table');
+
   // Farm Settings - Now driven by Target Egg Sales
   const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(10000);
   
@@ -310,16 +322,18 @@ function Simulator() {
   return (
     <div className="pb-12">
       {/* Header */}
-      <header className="bg-emerald-700 text-white py-6 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Bird className="h-8 w-8 text-emerald-200" />
-            <h1 className="text-2xl font-bold tracking-tight">Free Range Poultry Simulator (India)</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <header className="bg-emerald-700 text-white py-6 px-8 shadow-md rounded-2xl w-fit">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Bird className="h-8 w-8 text-emerald-200" />
+              <h1 className="text-2xl font-bold tracking-tight">Free Range Poultry Simulator (India)</h1>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Sidebar - Inputs */}
         <div className="lg:col-span-3 space-y-6">
@@ -493,18 +507,37 @@ function Simulator() {
           
           {/* Farm Demographics Table */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
-              <RotateCcw className="h-5 w-5 text-slate-500 mr-2" />
-              <h2 className="text-lg font-semibold text-slate-800">Farm Population Dynamics</h2>
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center">
+                <RotateCcw className="h-5 w-5 text-slate-500 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800">Farm Population Dynamics</h2>
+              </div>
+              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+                <button 
+                  onClick={() => setViewPopulation('table')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewPopulation === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <TableProperties className="h-4 w-4 mr-1.5" /> Table
+                </button>
+                <button 
+                  onClick={() => setViewPopulation('chart')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewPopulation === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
+                </button>
+              </div>
             </div>
-            <div className="p-6 text-sm text-slate-600 mb-2">
-              Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
-                    <th className="p-4 font-medium">Timeline</th>
+            
+            {viewPopulation === 'table' ? (
+              <>
+                <div className="p-6 text-sm text-slate-600 mb-2">
+                  Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                        <th className="p-4 font-medium">Timeline</th>
                     <th className="p-4 font-medium text-center">New Batches<br/><span className="text-xs font-normal text-slate-400">(Started this Yr)</span></th>
                     <th className="p-4 font-medium text-center">Avg Flock<br/><span className="text-xs font-normal text-slate-400">(Yearly average)</span></th>
                     <th className="p-4 font-medium text-center bg-slate-100">Peak Total Flock<br/><span className="text-xs font-normal text-slate-400">(Max birds at once)</span></th>
@@ -549,6 +582,24 @@ function Simulator() {
                 </tbody>
               </table>
             </div>
+          </>
+          ) : (
+            <div className="p-6 h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={simulationData.yearlyData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="year" tickFormatter={(val) => `Year ${val}`} />
+                  <YAxis yAxisId="left" />
+                  <RechartsTooltip formatter={(value: number) => value.toLocaleString('en-IN')} />
+                  <Legend />
+                  <Area yAxisId="left" type="monotone" dataKey="peakActiveFlock" name="Peak Total Flock" fill="#f1f5f9" stroke="#94a3b8" />
+                  <Bar yAxisId="left" dataKey="peakChicks" name="Peak Growing Chicks" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
+                  <Bar yAxisId="left" dataKey="peakHens" name="Peak Laying Hens" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={40} />
+                  <Line yAxisId="left" type="monotone" dataKey="averageActiveFlock" name="Average Flock" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           </div>
 
           {/* 5-Year Revenue Projection Table */}
@@ -558,11 +609,27 @@ function Simulator() {
                 <BarChart4 className="h-5 w-5 text-slate-500 mr-2" />
                 <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue & Profit Projection</h2>
               </div>
+              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+                <button 
+                  onClick={() => setViewFinancials('table')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewFinancials === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <TableProperties className="h-4 w-4 mr-1.5" /> Table
+                </button>
+                <button 
+                  onClick={() => setViewFinancials('chart')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewFinancials === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
+                </button>
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+
+            {viewFinancials === 'table' ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse whitespace-nowrap">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                     <th className="p-4 font-medium">Year</th>
                     <th className="p-4 font-medium text-right">Eggs Sold</th>
                     <th className="p-4 font-medium text-right">Egg Rev</th>
@@ -591,23 +658,58 @@ function Simulator() {
                 </tbody>
               </table>
             </div>
+            ) : (
+              <div className="p-6 h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={simulationData.yearlyData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="year" tickFormatter={(val) => `Year ${val}`} />
+                    <YAxis tickFormatter={(val) => `₹${(val / 100000).toFixed(1)}L`} width={80} />
+                    <RechartsTooltip formatter={(value: number) => formatINR(value)} labelFormatter={(label) => `Year ${label}`} />
+                    <Legend />
+                    <Bar dataKey="totalRevenue" name="Total Revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="totalCost" name="Total Cost" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                    <Line type="monotone" dataKey="totalProfit" name="Net Profit" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
 
           
 
           {/* Infrastructure & Equipment Planner */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
-              <Wrench className="h-5 w-5 text-slate-500 mr-2" />
-              <h2 className="text-lg font-semibold text-slate-800">Infrastructure & Equipment Planner</h2>
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center">
+                <Wrench className="h-5 w-5 text-slate-500 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800">Infrastructure & Equipment Planner</h2>
+              </div>
+              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+                <button 
+                  onClick={() => setViewInfra('table')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewInfra === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <TableProperties className="h-4 w-4 mr-1.5" /> Table
+                </button>
+                <button 
+                  onClick={() => setViewInfra('chart')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewInfra === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
+                </button>
+              </div>
             </div>
-            <div className="p-6 text-sm text-slate-600 mb-2">
-              Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+            
+            {viewInfra === 'table' ? (
+              <>
+                <div className="p-6 text-sm text-slate-600 mb-2">
+                  Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                     <th className="p-4 font-medium sticky left-0 bg-slate-50 shadow-[1px_0_0_0_#e2e8f0]">Requirement</th>
                     <th className="p-4 font-medium text-center">Year 1</th>
                     <th className="p-4 font-medium text-center">Year 2</th>
@@ -701,6 +803,23 @@ function Simulator() {
                 </tbody>
               </table>
             </div>
+            </>
+            ) : (
+              <div className="p-6 h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={simulationData.yearlyData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="year" tickFormatter={(val) => `Year ${val}`} />
+                    <YAxis yAxisId="left" tickFormatter={(val) => `${(val / 1000).toFixed(1)}k sqft`} width={80} />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="infra.freeRangeSqFt" name="Free Range Space" fill="#10b981" stackId="a" />
+                    <Bar yAxisId="left" dataKey="infra.shedSqFt" name="Shed Space" fill="#f59e0b" stackId="a" />
+                    <Bar yAxisId="left" dataKey="infra.incubationSqFt" name="Incubation Room" fill="#6366f1" stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
 
           {/* Monthly Detailed Schedule Table */}
@@ -710,14 +829,31 @@ function Simulator() {
                 <CalendarDays className="h-5 w-5 text-slate-500 mr-2" />
                 <h2 className="text-lg font-semibold text-slate-800">Monthly Batch Schedule & Phases</h2>
               </div>
-            </div>
-            <div className="p-6 pb-4 text-sm text-slate-600 border-b border-slate-100 bg-slate-50">
-              Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
+              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+                <button 
+                  onClick={() => setViewSchedule('table')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewSchedule === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <TableProperties className="h-4 w-4 mr-1.5" /> Table
+                </button>
+                <button 
+                  onClick={() => setViewSchedule('chart')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewSchedule === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
+                </button>
+              </div>
             </div>
             
-            <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
+            {viewSchedule === 'table' ? (
+              <>
+                <div className="p-6 pb-4 text-sm text-slate-600 border-b border-slate-100 bg-slate-50">
+                  Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
+                </div>
+                
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative">
+                  <table className="w-full text-left border-collapse whitespace-nowrap">
+                    <thead className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
                   <tr className="text-slate-500 text-sm">
                     <th className="p-4 font-medium bg-slate-100">Month</th>
                     <th className="p-4 font-medium text-center bg-slate-100">New Batches<br/><span className="text-xs font-normal text-slate-400">(Day-Old Chicks Added)</span></th>
@@ -766,6 +902,23 @@ function Simulator() {
                 </tbody>
               </table>
             </div>
+            </>
+            ) : (
+              <div className="p-6 h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={simulationData.monthlyData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="month" tickFormatter={(val) => `M${val}`} />
+                    <YAxis />
+                    <RechartsTooltip labelFormatter={(label) => `Month ${label}`} />
+                    <Legend />
+                    <Area type="monotone" dataKey="broodingChicks" name="Brooding Phase" stackId="1" stroke="#4f46e5" fill="#c7d2fe" />
+                    <Area type="monotone" dataKey="growingChicks" name="Growing Phase" stackId="1" stroke="#2563eb" fill="#bfdbfe" />
+                    <Area type="monotone" dataKey="currentHens" name="Laying Phase" stackId="1" stroke="#d97706" fill="#fde68a" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
 
         </div>
