@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { 
   Egg, 
@@ -8,12 +8,10 @@ import {
   Settings, 
   TrendingUp,
   TrendingDown,
-  Scale,
   RotateCcw,
   BarChart4,
   Map,
-  Wallet,
-  Coins
+  Wallet
 } from 'lucide-react';
 
 const BREED_PRESETS = {
@@ -46,7 +44,7 @@ const BREED_PRESETS = {
   }
 };
 
-const formatINR = (amount) => {
+const formatINR = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -92,7 +90,7 @@ function Simulator() {
   // Apply preset when breed changes
   useEffect(() => {
     if (selectedBreed !== 'Custom') {
-      const p = BREED_PRESETS[selectedBreed];
+      const p = BREED_PRESETS[selectedBreed as keyof typeof BREED_PRESETS];
       setEggsPerYear(p.eggsPerYear);
       setMonthsToLaying(p.monthsToLaying);
       setPricePerEgg(p.pricePerEgg);
@@ -106,7 +104,7 @@ function Simulator() {
 
   // Simulation Logic
   const simulationData = useMemo(() => {
-    let batches = [];
+    let batches: { id: string; age: number; size: number }[] = [];
     let monthlyData = [];
     let total5YearEggRev = 0;
     let total5YearMeatRev = 0;
