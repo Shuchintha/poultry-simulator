@@ -298,6 +298,8 @@ function Simulator() {
         totalRevenue: total5YearEggRev + total5YearMeatRev,
         totalCost: total5YearCost,
         netProfit: (total5YearEggRev + total5YearMeatRev) - total5YearCost,
+        avgYearlyRevenue: (total5YearEggRev + total5YearMeatRev) / 5,
+        avgYearlyProfit: ((total5YearEggRev + total5YearMeatRev) - total5YearCost) / 5,
         totalEggRev: total5YearEggRev,
         totalMeatRev: total5YearMeatRev,
         peakLandRequired: (maxFlockAcross5Years / 10000).toFixed(2)
@@ -489,48 +491,6 @@ function Simulator() {
         {/* Center Content - Tables */}
         <div className="lg:col-span-6 space-y-6">
           
-          {/* 5-Year Revenue Projection Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-              <div className="flex items-center">
-                <BarChart4 className="h-5 w-5 text-slate-500 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue & Profit Projection</h2>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
-                    <th className="p-4 font-medium">Year</th>
-                    <th className="p-4 font-medium text-right">Eggs Sold</th>
-                    <th className="p-4 font-medium text-right">Egg Rev</th>
-                    <th className="p-4 font-medium text-right">Birds Sold (Meat)</th>
-                    <th className="p-4 font-medium text-right">Meat Rev</th>
-                    <th className="p-4 font-medium text-right text-emerald-700 bg-emerald-50/50">Total Rev</th>
-                    <th className="p-4 font-medium text-right text-rose-700 bg-rose-50/50">Total Cost</th>
-                    <th className="p-4 font-medium text-right text-blue-700 bg-blue-50/50">Net Profit</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {simulationData.yearlyData.map((data) => (
-                    <tr key={data.year} className="border-b border-slate-100 hover:bg-slate-50/50">
-                      <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
-                      <td className="p-4 text-right text-slate-600">{data.totalEggs.toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
-                      <td className="p-4 text-right text-slate-600">{formatINR(data.eggRevenue)}</td>
-                      <td className="p-4 text-right text-slate-600">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
-                      <td className="p-4 text-right text-slate-600">{formatINR(data.meatRevenue)}</td>
-                      <td className="p-4 text-right font-bold text-emerald-700 bg-emerald-50/30">{formatINR(data.totalRevenue)}</td>
-                      <td className="p-4 text-right font-bold text-rose-600 bg-rose-50/30">{formatINR(data.totalCost)}</td>
-                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-blue-700 bg-blue-50/30' : 'text-rose-700 bg-rose-50/30'}`}>
-                        {formatINR(data.totalProfit)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           {/* Farm Demographics Table */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
@@ -583,6 +543,48 @@ function Simulator() {
                       
                       <td className="p-4 text-right font-medium text-emerald-600">
                         {data.totalMeatBirds.toLocaleString('en-IN')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 5-Year Revenue Projection Table */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center">
+                <BarChart4 className="h-5 w-5 text-slate-500 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue & Profit Projection</h2>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                    <th className="p-4 font-medium">Year</th>
+                    <th className="p-4 font-medium text-right">Eggs Sold</th>
+                    <th className="p-4 font-medium text-right">Egg Rev</th>
+                    <th className="p-4 font-medium text-right">Birds Sold (Meat)</th>
+                    <th className="p-4 font-medium text-right">Meat Rev</th>
+                    <th className="p-4 font-medium text-right text-emerald-700 bg-emerald-50/50">Total Rev</th>
+                    <th className="p-4 font-medium text-right text-rose-700 bg-rose-50/50">Total Cost</th>
+                    <th className="p-4 font-medium text-right text-blue-700 bg-blue-50/50">Net Profit</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {simulationData.yearlyData.map((data) => (
+                    <tr key={data.year} className="border-b border-slate-100 hover:bg-slate-50/50">
+                      <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
+                      <td className="p-4 text-right text-slate-600">{data.totalEggs.toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
+                      <td className="p-4 text-right text-slate-600">{formatINR(data.eggRevenue)}</td>
+                      <td className="p-4 text-right text-slate-600">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-right text-slate-600">{formatINR(data.meatRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-emerald-700 bg-emerald-50/30">{formatINR(data.totalRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-rose-600 bg-rose-50/30">{formatINR(data.totalCost)}</td>
+                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-blue-700 bg-blue-50/30' : 'text-rose-700 bg-rose-50/30'}`}>
+                        {formatINR(data.totalProfit)}
                       </td>
                     </tr>
                   ))}
@@ -700,57 +702,8 @@ function Simulator() {
               </table>
             </div>
           </div>
-        </div>
 
-        {/* Right Content - Stats Section */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Total 5-Yr Revenue
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
-            </div>
-            
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
-                <TrendingDown className="h-4 w-4 mr-1 text-rose-500" /> Total 5-Yr Cost
-              </div>
-              <div className="text-2xl font-bold text-rose-600">{formatINR(simulationData.summary.totalCost)}</div>
-            </div>
-            
-            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-rose-50 border-rose-200'}`}>
-              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
-                <Wallet className="h-4 w-4 mr-1" /> 5-Yr Net Profit
-              </div>
-              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-blue-700' : 'text-rose-700'}`}>
-                {formatINR(simulationData.summary.netProfit)}
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-xs font-medium mb-1">Egg Revenue</div>
-              <div className="text-lg font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
-            </div>
-            
-            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-xs font-medium mb-1">Meat Revenue</div>
-              <div className="text-lg font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
-            </div>
-            
-            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 shadow-sm flex flex-col justify-center">
-              <div className="text-emerald-800 text-xs font-medium mb-1 flex items-center">
-                <Map className="h-3 w-3 mr-1" /> Peak Land Required
-              </div>
-              <div className="text-lg font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
-            </div>
-          </div>
-        </div>
-
-      </main>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        {/* Monthly Detailed Schedule Table */}
+          {/* Monthly Detailed Schedule Table */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
             <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center">
@@ -814,6 +767,74 @@ function Simulator() {
               </table>
             </div>
           </div>
+
+        </div>
+
+        {/* Right Content - Stats Section */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col gap-4">
+            <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Avg Yearly Revenue
+              </div>
+              <div className="text-2xl font-bold text-emerald-700">{formatINR(simulationData.summary.avgYearlyRevenue)}</div>
+            </div>
+
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-rose-50 border-rose-200'}`}>
+              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
+                <Wallet className="h-4 w-4 mr-1" /> Avg Yearly Profit
+              </div>
+              <div className={`text-2xl font-bold ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-700' : 'text-rose-700'}`}>
+                {formatINR(simulationData.summary.avgYearlyProfit)}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center mt-2">
+              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Total 5-Yr Revenue
+              </div>
+              <div className="text-2xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+                <TrendingDown className="h-4 w-4 mr-1 text-rose-500" /> Total 5-Yr Cost
+              </div>
+              <div className="text-2xl font-bold text-rose-600">{formatINR(simulationData.summary.totalCost)}</div>
+            </div>
+            
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-slate-50 border-slate-200' : 'bg-rose-50 border-rose-200'}`}>
+              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-slate-700' : 'text-rose-800'}`}>
+                <Wallet className="h-4 w-4 mr-1" /> 5-Yr Net Profit
+              </div>
+              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-slate-800' : 'text-rose-700'}`}>
+                {formatINR(simulationData.summary.netProfit)}
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-xs font-medium mb-1">Egg Revenue</div>
+              <div className="text-lg font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-xs font-medium mb-1">Meat Revenue</div>
+              <div className="text-lg font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+            </div>
+            
+            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 text-xs font-medium mb-1 flex items-center">
+                <Map className="h-3 w-3 mr-1" /> Peak Land Required
+              </div>
+              <div className="text-lg font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        
       </div>
     </div>
   );
