@@ -16,11 +16,13 @@ import {
   Tractor,
   Leaf,
   TableProperties,
-  LineChart as LineChartIcon
+  LineChart as LineChartIcon,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, 
-  LineChart, Line, AreaChart, Area, ComposedChart 
+  Line, AreaChart, Area, ComposedChart 
 } from 'recharts';
 
 
@@ -337,18 +339,18 @@ function Simulator() {
         
         {/* Left Sidebar - Inputs */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
-              <Settings className="h-5 w-5 text-slate-500 mr-2" />
-              <h2 className="text-lg font-semibold text-slate-800">Farm Parameters</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center">
+              <Settings className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Farm Parameters</h2>
             </div>
             
             <div className="p-6 space-y-5">
               {/* Breed Selection */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Select Breed</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Select Breed</label>
                 <select 
-                  className="w-full border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full border border-slate-300 rounded-lg p-2.5 bg-slate-50 dark:bg-slate-900 focus:ring-emerald-500 focus:border-emerald-500"
                   value={selectedBreed}
                   onChange={(e) => setSelectedBreed(e.target.value)}
                 >
@@ -357,12 +359,12 @@ function Simulator() {
               </div>
 
               {/* Cycle Settings & Expansion */}
-              <div className="pt-2 border-t border-slate-100">
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                     {isMeatOnly ? "Initial Monthly Meat Bird Target" : "Initial Monthly Egg Target"}
                   </label>
-                  <input type="number" step="100" value={targetMonthlyEggs} onChange={e => setTargetMonthlyEggs(Number(e.target.value))} className="w-full border border-slate-300 rounded-lg p-2" />
+                  <input type="number" step="100" value={targetMonthlyEggs} onChange={e => setTargetMonthlyEggs(Number(e.target.value))} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50" />
                   
                   {/* Expansion Checkbox */}
                   <div className="flex items-center mt-3">
@@ -371,21 +373,21 @@ function Simulator() {
                       id="expansion"
                       checked={isExpansionEnabled}
                       onChange={(e) => setIsExpansionEnabled(e.target.checked)}
-                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400 focus:ring-emerald-500 border-slate-300 rounded"
                     />
-                    <label htmlFor="expansion" className="ml-2 block text-sm font-medium text-slate-700">
+                    <label htmlFor="expansion" className="ml-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Auto-Expand Business
                     </label>
                   </div>
                   
                   {/* Expansion Dropdown (Conditional) */}
                   {isExpansionEnabled && (
-                    <div className="mt-3 ml-6 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Add Farm Capacity Every:</label>
+                    <div className="mt-3 ml-6 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                      <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Add Farm Capacity Every:</label>
                       <select
                         value={expansionInterval}
                         onChange={(e) => setExpansionInterval(Number(e.target.value))}
-                        className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white focus:ring-emerald-500 focus:border-emerald-500"
+                        className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white dark:bg-slate-800 focus:ring-emerald-500 focus:border-emerald-500"
                       >
                         <option value={6}>6 Months (Aggressive Growth)</option>
                         <option value={12}>12 Months (Steady Growth)</option>
@@ -400,20 +402,20 @@ function Simulator() {
                       id="bsf"
                       checked={includeBsfHydroponics}
                       onChange={(e) => setIncludeBsfHydroponics(e.target.checked)}
-                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400 focus:ring-emerald-500 border-slate-300 rounded"
                     />
-                    <label htmlFor="bsf" className="ml-2 block text-sm font-medium text-slate-700">
+                    <label htmlFor="bsf" className="ml-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Include BSF & Hydroponics Calculations
                     </label>
                   </div>
                 </div>
                 
-                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+                <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-3 border border-emerald-100 dark:border-emerald-800">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-semibold text-emerald-800">Replacement Cycle (Auto)</span>
-                    <span className="text-sm font-bold text-emerald-700">Base: Every {batchFrequency} Mos</span>
+                    <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">Replacement Cycle (Auto)</span>
+                    <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Base: Every {batchFrequency} Mos</span>
                   </div>
-                  <p className="text-[11px] text-emerald-700 leading-tight">
+                  <p className="text-[11px] text-emerald-700 dark:text-emerald-400 leading-tight">
                     {isMeatOnly ? (
                       <>To achieve <b>{batchSize.toLocaleString('en-IN')} meat birds/month</b> initially, you need a batch size of <b>{batchSize.toLocaleString('en-IN')} birds</b> introduced every <b>{batchFrequency} months</b>.</>
                     ) : (
@@ -421,7 +423,7 @@ function Simulator() {
                     )}
                     
                     {isExpansionEnabled ? (
-                      <span className="block mt-2 font-semibold text-emerald-800">
+                      <span className="block mt-2 font-semibold text-emerald-800 dark:text-emerald-300">
                         Expansion ON: A new production stream is added every {expansionInterval} months, continuously compounding your capacity!
                       </span>
                     ) : (
@@ -434,28 +436,28 @@ function Simulator() {
               </div>
 
               {/* Biological Settings */}
-              <div className="space-y-4 pt-4 border-t border-slate-100">
-                <h3 className="text-sm font-semibold text-slate-800 flex items-center"><Egg className="h-4 w-4 mr-1 text-amber-500" /> Production</h3>
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center"><Egg className="h-4 w-4 mr-1 text-amber-500" /> Production</h3>
                 
                 <div>
-                  <label className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                  <label className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                     <span>Eggs Per Year (Per Hen)</span>
-                    <span className="text-emerald-600 font-bold">{eggsPerYear}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">{eggsPerYear}</span>
                   </label>
                   <input type="range" min="0" max="320" value={eggsPerYear} onChange={e => {setEggsPerYear(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full accent-emerald-600" />
                 </div>
                 
                 <div>
-                  <label className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                  <label className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                     <span>Months to Laying (Chick Phase)</span>
-                    <span className="text-emerald-600 font-bold">{monthsToLaying} Mos</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">{monthsToLaying} Mos</span>
                   </label>
                   <input type="range" min="4" max="9" value={monthsToLaying} onChange={e => {setMonthsToLaying(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full accent-emerald-600" />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Sell Batch At (Age in Months)</label>
-                  <select value={sellBatchAt} onChange={e => {setSellBatchAt(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2">
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sell Batch At (Age in Months)</label>
+                  <select value={sellBatchAt} onChange={e => {setSellBatchAt(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50">
                     <option value={2}>2 Months (Broiler/Meat)</option>
                     <option value={6}>6 Months</option>
                     <option value={12}>12 Months (1 Year)</option>
@@ -467,34 +469,34 @@ function Simulator() {
               </div>
 
               {/* Financial Settings */}
-              <div className="space-y-4 pt-4 border-t border-slate-100">
-                <h3 className="text-sm font-semibold text-slate-800 flex items-center"><IndianRupee className="h-4 w-4 mr-1 text-emerald-600" /> Economics & Costs</h3>
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center"><IndianRupee className="h-4 w-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Economics & Costs</h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Price per Egg (₹)</label>
-                    <input type="number" value={pricePerEgg} onChange={e => {setPricePerEgg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                    <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Price per Egg (₹)</label>
+                    <input type="number" value={pricePerEgg} onChange={e => {setPricePerEgg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Price per Kg (₹)</label>
-                    <input type="number" value={pricePerKg} onChange={e => {setPricePerKg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                    <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Price per Kg (₹)</label>
+                    <input type="number" value={pricePerKg} onChange={e => {setPricePerKg(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Chick Cost (₹/bird)</label>
-                    <input type="number" value={costPerChick} onChange={e => {setCostPerChick(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2 bg-rose-50/50" />
+                    <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Chick Cost (₹/bird)</label>
+                    <input type="number" value={costPerChick} onChange={e => {setCostPerChick(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2 bg-rose-50/50 dark:bg-rose-900/20" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Feed/Upkeep (₹/mo)</label>
-                    <input type="number" value={monthlyCostPerBird} onChange={e => {setMonthlyCostPerBird(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2 bg-rose-50/50" />
+                    <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Feed/Upkeep (₹/mo)</label>
+                    <input type="number" value={monthlyCostPerBird} onChange={e => {setMonthlyCostPerBird(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2 bg-rose-50/50 dark:bg-rose-900/20" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Average Weight at Sale (Kg)</label>
-                  <input type="number" step="0.1" value={avgWeight} onChange={e => {setAvgWeight(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 rounded-lg p-2" />
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Average Weight at Sale (Kg)</label>
+                  <input type="number" step="0.1" value={avgWeight} onChange={e => {setAvgWeight(Number(e.target.value)); setSelectedBreed('Custom')}} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50" />
                 </div>
               </div>
 
@@ -506,22 +508,22 @@ function Simulator() {
         <div className="lg:col-span-6 space-y-6">
           
           {/* Farm Demographics Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center">
-                <RotateCcw className="h-5 w-5 text-slate-500 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800">Farm Population Dynamics</h2>
+                <RotateCcw className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Farm Population Dynamics</h2>
               </div>
-              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+              <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewPopulation('table')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewPopulation === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewPopulation === 'table' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <TableProperties className="h-4 w-4 mr-1.5" /> Table
                 </button>
                 <button 
                   onClick={() => setViewPopulation('chart')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewPopulation === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewPopulation === 'chart' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
                 </button>
@@ -530,51 +532,51 @@ function Simulator() {
             
             {viewPopulation === 'table' ? (
               <>
-                <div className="p-6 text-sm text-slate-600 mb-2">
+                <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
                   Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                      <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                      <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
                         <th className="p-4 font-medium">Timeline</th>
                     <th className="p-4 font-medium text-center">New Batches<br/><span className="text-xs font-normal text-slate-400">(Started this Yr)</span></th>
                     <th className="p-4 font-medium text-center">Avg Flock<br/><span className="text-xs font-normal text-slate-400">(Yearly average)</span></th>
-                    <th className="p-4 font-medium text-center bg-slate-100">Peak Total Flock<br/><span className="text-xs font-normal text-slate-400">(Max birds at once)</span></th>
+                    <th className="p-4 font-medium text-center bg-slate-100 dark:bg-slate-700">Peak Total Flock<br/><span className="text-xs font-normal text-slate-400">(Max birds at once)</span></th>
                     <th className="p-4 font-medium text-right">Peak Growing Chicks<br/><span className="text-xs font-normal text-slate-400">(Max 0-{monthsToLaying} mos)</span></th>
                     <th className="p-4 font-medium text-right">Peak Laying Hens<br/><span className="text-xs font-normal text-slate-400">(Max &gt;{monthsToLaying} mos)</span></th>
-                    <th className="p-4 font-medium text-right text-amber-600">Avg Eggs/Month<br/><span className="text-xs font-normal text-amber-600/70">(Yearly average)</span></th>
-                    <th className="p-4 font-medium text-right bg-slate-50">Year-End Flock<br/><span className="text-xs font-normal text-slate-400">(Dec Snapshot)</span></th>
-                    <th className="p-4 font-medium text-right text-emerald-600">Birds Sold<br/><span className="text-xs font-normal text-emerald-600/70">(During Year)</span></th>
+                    <th className="p-4 font-medium text-right text-amber-600 dark:text-amber-400">Avg Eggs/Month<br/><span className="text-xs font-normal text-amber-600 dark:text-amber-400/70">(Yearly average)</span></th>
+                    <th className="p-4 font-medium text-right bg-slate-50 dark:bg-slate-900">Year-End Flock<br/><span className="text-xs font-normal text-slate-400">(Dec Snapshot)</span></th>
+                    <th className="p-4 font-medium text-right text-emerald-600 dark:text-emerald-400">Birds Sold<br/><span className="text-xs font-normal text-emerald-600 dark:text-emerald-400/70">(During Year)</span></th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {simulationData.yearlyData.map((data) => (
-                    <tr key={`pop-${data.year}`} className="border-b border-slate-100 hover:bg-slate-50/50">
-                      <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
-                      <td className="p-4 text-center text-slate-600">{data.newBatchesIntroduced}</td>
-                      <td className="p-4 text-center text-slate-600">{data.averageActiveFlock.toLocaleString('en-IN')}</td>
-                      <td className="p-4 text-center font-bold text-slate-800 bg-slate-100/50">{data.peakActiveFlock.toLocaleString('en-IN')}</td>
+                    <tr key={`pop-${data.year}`} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                      <td className="p-4 font-semibold text-slate-700 dark:text-slate-200">Year {data.year}</td>
+                      <td className="p-4 text-center text-slate-600 dark:text-slate-300">{data.newBatchesIntroduced}</td>
+                      <td className="p-4 text-center text-slate-600 dark:text-slate-300">{data.averageActiveFlock.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-center font-bold text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-700/50">{data.peakActiveFlock.toLocaleString('en-IN')}</td>
                       
-                      <td className="p-4 text-right text-slate-600">
+                      <td className="p-4 text-right text-slate-600 dark:text-slate-300">
                         <div className="font-medium">{data.peakChicks.toLocaleString('en-IN')} birds</div>
                         <div className="text-xs text-slate-400">Peak: {data.peakGrowingBatches} batch(es)</div>
                       </td>
                       
-                      <td className="p-4 text-right text-amber-600">
+                      <td className="p-4 text-right text-amber-600 dark:text-amber-400">
                         <div className="font-medium">{data.peakHens.toLocaleString('en-IN')} birds</div>
-                        <div className="text-xs text-amber-600/60">Peak: {data.peakLayingBatches} batch(es)</div>
+                        <div className="text-xs text-amber-600 dark:text-amber-400/60">Peak: {data.peakLayingBatches} batch(es)</div>
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-amber-600">
+                      <td className="p-4 text-right font-medium text-amber-600 dark:text-amber-400">
                         {data.averageMonthlyEggs.toLocaleString('en-IN')}
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-slate-700 bg-slate-50/50">
+                      <td className="p-4 text-right font-medium text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/50">
                         {data.yearEndTotal.toLocaleString('en-IN')}
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-emerald-600">
+                      <td className="p-4 text-right font-medium text-emerald-600 dark:text-emerald-400">
                         {data.totalMeatBirds.toLocaleString('en-IN')}
                       </td>
                     </tr>
@@ -590,7 +592,7 @@ function Simulator() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="year" tickFormatter={(val) => `Year ${val}`} />
                   <YAxis yAxisId="left" />
-                  <RechartsTooltip formatter={(value: number) => value.toLocaleString('en-IN')} />
+                  <RechartsTooltip formatter={(value: any) => value.toLocaleString('en-IN')} />
                   <Legend />
                   <Area yAxisId="left" type="monotone" dataKey="peakActiveFlock" name="Peak Total Flock" fill="#f1f5f9" stroke="#94a3b8" />
                   <Bar yAxisId="left" dataKey="peakChicks" name="Peak Growing Chicks" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
@@ -603,22 +605,22 @@ function Simulator() {
           </div>
 
           {/* 5-Year Revenue Projection Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center">
-                <BarChart4 className="h-5 w-5 text-slate-500 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800">5-Year Revenue & Profit Projection</h2>
+                <BarChart4 className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">5-Year Revenue & Profit Projection</h2>
               </div>
-              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+              <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewFinancials('table')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewFinancials === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewFinancials === 'table' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <TableProperties className="h-4 w-4 mr-1.5" /> Table
                 </button>
                 <button 
                   onClick={() => setViewFinancials('chart')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewFinancials === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewFinancials === 'chart' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
                 </button>
@@ -629,28 +631,28 @@ function Simulator() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse whitespace-nowrap">
                   <thead>
-                    <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                    <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
                     <th className="p-4 font-medium">Year</th>
                     <th className="p-4 font-medium text-right">Eggs Sold</th>
                     <th className="p-4 font-medium text-right">Egg Rev</th>
                     <th className="p-4 font-medium text-right">Birds Sold (Meat)</th>
                     <th className="p-4 font-medium text-right">Meat Rev</th>
-                    <th className="p-4 font-medium text-right text-emerald-700 bg-emerald-50/50">Total Rev</th>
-                    <th className="p-4 font-medium text-right text-rose-700 bg-rose-50/50">Total Cost</th>
-                    <th className="p-4 font-medium text-right text-blue-700 bg-blue-50/50">Net Profit</th>
+                    <th className="p-4 font-medium text-right text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20">Total Rev</th>
+                    <th className="p-4 font-medium text-right text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-900/20">Total Cost</th>
+                    <th className="p-4 font-medium text-right text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20">Net Profit</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {simulationData.yearlyData.map((data) => (
-                    <tr key={data.year} className="border-b border-slate-100 hover:bg-slate-50/50">
-                      <td className="p-4 font-semibold text-slate-700">Year {data.year}</td>
-                      <td className="p-4 text-right text-slate-600">{data.totalEggs.toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
-                      <td className="p-4 text-right text-slate-600">{formatINR(data.eggRevenue)}</td>
-                      <td className="p-4 text-right text-slate-600">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
-                      <td className="p-4 text-right text-slate-600">{formatINR(data.meatRevenue)}</td>
-                      <td className="p-4 text-right font-bold text-emerald-700 bg-emerald-50/30">{formatINR(data.totalRevenue)}</td>
-                      <td className="p-4 text-right font-bold text-rose-600 bg-rose-50/30">{formatINR(data.totalCost)}</td>
-                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-blue-700 bg-blue-50/30' : 'text-rose-700 bg-rose-50/30'}`}>
+                    <tr key={data.year} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                      <td className="p-4 font-semibold text-slate-700 dark:text-slate-200">Year {data.year}</td>
+                      <td className="p-4 text-right text-slate-600 dark:text-slate-300">{data.totalEggs.toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
+                      <td className="p-4 text-right text-slate-600 dark:text-slate-300">{formatINR(data.eggRevenue)}</td>
+                      <td className="p-4 text-right text-slate-600 dark:text-slate-300">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-right text-slate-600 dark:text-slate-300">{formatINR(data.meatRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10">{formatINR(data.totalRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-rose-600 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-900/10">{formatINR(data.totalCost)}</td>
+                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-blue-700 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-900/10' : 'text-rose-700 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-900/10'}`}>
                         {formatINR(data.totalProfit)}
                       </td>
                     </tr>
@@ -665,7 +667,7 @@ function Simulator() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="year" tickFormatter={(val) => `Year ${val}`} />
                     <YAxis tickFormatter={(val) => `₹${(val / 100000).toFixed(1)}L`} width={80} />
-                    <RechartsTooltip formatter={(value: number) => formatINR(value)} labelFormatter={(label) => `Year ${label}`} />
+                    <RechartsTooltip formatter={(value: any) => formatINR(value)} labelFormatter={(label) => `Year ${label}`} />
                     <Legend />
                     <Bar dataKey="totalRevenue" name="Total Revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="totalCost" name="Total Cost" fill="#f43f5e" radius={[4, 4, 0, 0]} />
@@ -679,22 +681,22 @@ function Simulator() {
           
 
           {/* Infrastructure & Equipment Planner */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center">
-                <Wrench className="h-5 w-5 text-slate-500 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800">Infrastructure & Equipment Planner</h2>
+                <Wrench className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Infrastructure & Equipment Planner</h2>
               </div>
-              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+              <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewInfra('table')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewInfra === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewInfra === 'table' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <TableProperties className="h-4 w-4 mr-1.5" /> Table
                 </button>
                 <button 
                   onClick={() => setViewInfra('chart')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewInfra === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewInfra === 'chart' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
                 </button>
@@ -703,14 +705,14 @@ function Simulator() {
             
             {viewInfra === 'table' ? (
               <>
-                <div className="p-6 text-sm text-slate-600 mb-2">
+                <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
                   Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                      <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
-                    <th className="p-4 font-medium sticky left-0 bg-slate-50 shadow-[1px_0_0_0_#e2e8f0]">Requirement</th>
+                      <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
+                    <th className="p-4 font-medium sticky left-0 bg-slate-50 dark:bg-slate-900 shadow-[1px_0_0_0_#e2e8f0]">Requirement</th>
                     <th className="p-4 font-medium text-center">Year 1</th>
                     <th className="p-4 font-medium text-center">Year 2</th>
                     <th className="p-4 font-medium text-center">Year 3</th>
@@ -720,25 +722,25 @@ function Simulator() {
                 </thead>
                 <tbody className="text-sm">
                   {/* Space & Land */}
-                  <tr className="bg-emerald-50/30">
-                    <td colSpan={6} className="p-3 font-semibold text-emerald-800 flex items-center">
+                  <tr className="bg-emerald-50 dark:bg-emerald-900/10">
+                    <td colSpan={6} className="p-3 font-semibold text-emerald-800 dark:text-emerald-300 flex items-center">
                       <Map className="h-4 w-4 mr-1" /> Space & Land Areas (Sq.Ft.)
                     </td>
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Free Range Area</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Free Range Area</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.freeRangeSqFt.toLocaleString('en-IN')}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Bird Shelter (Shed)</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Bird Shelter (Shed)</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.shedSqFt.toLocaleString('en-IN')}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Incubation / Brooding Rm</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Incubation / Brooding Rm</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.incubationSqFt.toLocaleString('en-IN')}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Egg Handling & Storage</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Egg Handling & Storage</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.eggHandlingSqFt.toLocaleString('en-IN')}</td>)}
                   </tr>
                   
@@ -748,53 +750,53 @@ function Simulator() {
                       <Tractor className="h-4 w-4 mr-1" /> Instruments & Hardware
                     </td>
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Incubators (1k cap.)</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Incubators (1k cap.)</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.incubators}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Hatchers (1k cap.)</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Hatchers (1k cap.)</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.hatchers}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Feeders</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Feeders</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.feeders.toLocaleString('en-IN')}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Waterers</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Waterers</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.waterers.toLocaleString('en-IN')}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Egg Crates (30 cap.)</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Egg Crates (30 cap.)</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.eggCrates.toLocaleString('en-IN')}</td>)}
                   </tr>
-                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Backup Generators</td>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                    <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Backup Generators</td>
                     {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.generators}</td>)}
                   </tr>
 
                   {/* Optional: BSF & Hydroponics */}
                   {includeBsfHydroponics && (
                     <>
-                      <tr className="bg-amber-50/30">
+                      <tr className="bg-amber-50/30 dark:bg-amber-900/10">
                         <td colSpan={6} className="p-3 font-semibold text-amber-800 flex items-center">
                           <Leaf className="h-4 w-4 mr-1" /> BSF Larvae & Hydroponics (Scaling with flock)
                         </td>
                       </tr>
-                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">BSF Space Req. (Sq.Ft.)</td>
+                      <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                        <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">BSF Space Req. (Sq.Ft.)</td>
                         {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.bsfSqFt.toLocaleString('en-IN')}</td>)}
                       </tr>
-                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">BSF Bins/Setups</td>
+                      <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                        <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">BSF Bins/Setups</td>
                         {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.bsfBins.toLocaleString('en-IN')}</td>)}
                       </tr>
-                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Hydroponics Space Req. (Sq.Ft.)</td>
+                      <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                        <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Hydroponics Space Req. (Sq.Ft.)</td>
                         {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.hydroSqFt.toLocaleString('en-IN')}</td>)}
                       </tr>
-                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Hydroponics Racks</td>
+                      <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
+                        <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Hydroponics Racks</td>
                         {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.hydroRacks.toLocaleString('en-IN')}</td>)}
                       </tr>
                     </>
@@ -823,22 +825,22 @@ function Simulator() {
           </div>
 
           {/* Monthly Detailed Schedule Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
-            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden w-full">
+            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center">
-                <CalendarDays className="h-5 w-5 text-slate-500 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800">Monthly Batch Schedule & Phases</h2>
+                <CalendarDays className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Monthly Batch Schedule & Phases</h2>
               </div>
-              <div className="flex items-center bg-slate-200 rounded-lg p-1">
+              <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewSchedule('table')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewSchedule === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewSchedule === 'table' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <TableProperties className="h-4 w-4 mr-1.5" /> Table
                 </button>
                 <button 
                   onClick={() => setViewSchedule('chart')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewSchedule === 'chart' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center transition-all ${viewSchedule === 'chart' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}
                 >
                   <LineChartIcon className="h-4 w-4 mr-1.5" /> Chart
                 </button>
@@ -847,26 +849,26 @@ function Simulator() {
             
             {viewSchedule === 'table' ? (
               <>
-                <div className="p-6 pb-4 text-sm text-slate-600 border-b border-slate-100 bg-slate-50">
+                <div className="p-6 pb-4 text-sm text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                   Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
                 </div>
                 
                 <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
-                    <thead className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
-                  <tr className="text-slate-500 text-sm">
-                    <th className="p-4 font-medium bg-slate-100">Month</th>
-                    <th className="p-4 font-medium text-center bg-slate-100">New Batches<br/><span className="text-xs font-normal text-slate-400">(Day-Old Chicks Added)</span></th>
-                    <th className="p-4 font-medium text-right text-indigo-700 bg-slate-100">Brooding Phase<br/><span className="text-xs font-normal text-indigo-400">(Month 1)</span></th>
-                    <th className="p-4 font-medium text-right text-blue-700 bg-slate-100">Growing Phase<br/><span className="text-xs font-normal text-blue-400">(Month 2 to {Math.min(monthsToLaying, sellBatchAt)})</span></th>
-                    <th className="p-4 font-medium text-right text-amber-700 bg-slate-100">Laying Phase<br/><span className="text-xs font-normal text-amber-500">{sellBatchAt > monthsToLaying ? `(Month ${monthsToLaying + 1} to ${sellBatchAt})` : '(N/A - Sold Before)'}</span></th>
-                    <th className="p-4 font-medium text-right text-emerald-700 bg-slate-100">Birds Sold<br/><span className="text-xs font-normal text-emerald-500">(End of Cycle)</span></th>
+                    <thead className="sticky top-0 z-10 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+                  <tr className="text-slate-500 dark:text-slate-400 text-sm">
+                    <th className="p-4 font-medium bg-slate-100 dark:bg-slate-700">Month</th>
+                    <th className="p-4 font-medium text-center bg-slate-100 dark:bg-slate-700">New Batches<br/><span className="text-xs font-normal text-slate-400">(Day-Old Chicks Added)</span></th>
+                    <th className="p-4 font-medium text-right text-indigo-700 dark:text-indigo-400 bg-slate-100 dark:bg-slate-700">Brooding Phase<br/><span className="text-xs font-normal text-indigo-400">(Month 1)</span></th>
+                    <th className="p-4 font-medium text-right text-blue-700 dark:text-blue-400 bg-slate-100 dark:bg-slate-700">Growing Phase<br/><span className="text-xs font-normal text-blue-400">(Month 2 to {Math.min(monthsToLaying, sellBatchAt)})</span></th>
+                    <th className="p-4 font-medium text-right text-amber-700 dark:text-amber-400 bg-slate-100 dark:bg-slate-700">Laying Phase<br/><span className="text-xs font-normal text-amber-500">{sellBatchAt > monthsToLaying ? `(Month ${monthsToLaying + 1} to ${sellBatchAt})` : '(N/A - Sold Before)'}</span></th>
+                    <th className="p-4 font-medium text-right text-emerald-700 dark:text-emerald-400 bg-slate-100 dark:bg-slate-700">Birds Sold<br/><span className="text-xs font-normal text-emerald-500">(End of Cycle)</span></th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {simulationData.monthlyData.map((data) => (
-                    <tr key={`month-${data.month}`} className="border-b border-slate-100 hover:bg-slate-50">
-                      <td className="p-4 font-semibold text-slate-700">Month {data.month} <span className="text-xs text-slate-400 font-normal ml-1">(Y{data.year})</span></td>
+                    <tr key={`month-${data.month}`} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900">
+                      <td className="p-4 font-semibold text-slate-700 dark:text-slate-200">Month {data.month} <span className="text-xs text-slate-400 font-normal ml-1">(Y{data.year})</span></td>
                       
                       <td className="p-4 text-center">
                         {data.newBatchesThisMonth > 0 ? (
@@ -882,17 +884,17 @@ function Simulator() {
                         {data.broodingChicks > 0 ? data.broodingChicks.toLocaleString('en-IN') : '-'}
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-blue-600 bg-blue-50/20">
+                      <td className="p-4 text-right font-medium text-blue-600 dark:text-blue-400 bg-blue-50/20 dark:bg-blue-900/10">
                         {data.growingChicks > 0 ? data.growingChicks.toLocaleString('en-IN') : '-'}
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-amber-600 bg-amber-50/20">
+                      <td className="p-4 text-right font-medium text-amber-600 dark:text-amber-400 bg-amber-50/20 dark:bg-amber-900/10">
                         {data.currentHens > 0 ? data.currentHens.toLocaleString('en-IN') : '-'}
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-emerald-600 bg-emerald-50/20">
+                      <td className="p-4 text-right font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10">
                         {data.monthlyMeatBirds > 0 ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             {data.monthlyMeatBirds.toLocaleString('en-IN')} Sold
                           </span>
                         ) : '-'}
@@ -926,60 +928,60 @@ function Simulator() {
         {/* Right Content - Stats Section */}
         <div className="lg:col-span-3 space-y-6">
           <div className="flex flex-col gap-4">
-            <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 shadow-sm flex flex-col justify-center">
-              <div className="text-emerald-800 text-sm font-medium mb-1 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Avg Yearly Revenue
+            <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-xl p-5 border border-emerald-200 dark:border-emerald-800 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 dark:text-emerald-300 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Avg Yearly Revenue
               </div>
-              <div className="text-2xl font-bold text-emerald-700">{formatINR(simulationData.summary.avgYearlyRevenue)}</div>
+              <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatINR(simulationData.summary.avgYearlyRevenue)}</div>
             </div>
 
-            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-rose-50 border-rose-200'}`}>
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'}`}>
               <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
                 <Wallet className="h-4 w-4 mr-1" /> Avg Yearly Profit
               </div>
-              <div className={`text-2xl font-bold ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-700' : 'text-rose-700'}`}>
+              <div className={`text-2xl font-bold ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-rose-700 dark:text-rose-400'}`}>
                 {formatINR(simulationData.summary.avgYearlyProfit)}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center mt-2">
-              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Total 5-Yr Revenue
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center mt-2">
+              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Total 5-Yr Revenue
               </div>
-              <div className="text-2xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
+              <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{formatINR(simulationData.summary.totalRevenue)}</div>
             </div>
             
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1 flex items-center">
                 <TrendingDown className="h-4 w-4 mr-1 text-rose-500" /> Total 5-Yr Cost
               </div>
-              <div className="text-2xl font-bold text-rose-600">{formatINR(simulationData.summary.totalCost)}</div>
+              <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">{formatINR(simulationData.summary.totalCost)}</div>
             </div>
             
-            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-slate-50 border-slate-200' : 'bg-rose-50 border-rose-200'}`}>
-              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-slate-700' : 'text-rose-800'}`}>
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'}`}>
+              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-slate-700 dark:text-slate-200' : 'text-rose-800'}`}>
                 <Wallet className="h-4 w-4 mr-1" /> 5-Yr Net Profit
               </div>
-              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-slate-800' : 'text-rose-700'}`}>
+              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-slate-800 dark:text-slate-100' : 'text-rose-700 dark:text-rose-400'}`}>
                 {formatINR(simulationData.summary.netProfit)}
               </div>
             </div>
             
-            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-xs font-medium mb-1">Egg Revenue</div>
-              <div className="text-lg font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">Egg Revenue</div>
+              <div className="text-lg font-bold text-amber-600 dark:text-amber-400">{formatINR(simulationData.summary.totalEggRev)}</div>
             </div>
             
-            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-xs font-medium mb-1">Meat Revenue</div>
-              <div className="text-lg font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">Meat Revenue</div>
+              <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatINR(simulationData.summary.totalMeatRev)}</div>
             </div>
             
-            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 shadow-sm flex flex-col justify-center">
-              <div className="text-emerald-800 text-xs font-medium mb-1 flex items-center">
+            <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 dark:text-emerald-300 text-xs font-medium mb-1 flex items-center">
                 <Map className="h-3 w-3 mr-1" /> Peak Land Required
               </div>
-              <div className="text-lg font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
+              <div className="text-lg font-bold text-emerald-700 dark:text-emerald-400">{simulationData.summary.peakLandRequired} Acres</div>
             </div>
           </div>
         </div>
@@ -996,9 +998,9 @@ function Simulator() {
 function About() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">About This Simulator</h2>
-        <p className="text-slate-600 max-w-3xl">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">About This Simulator</h2>
+        <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
           The Free Range Poultry Simulator is designed to help farmers and entrepreneurs model the financial and operational aspects of a poultry business. By adjusting parameters such as breed, egg production, and costs, you can forecast your revenue and understand the lifecycle of your flock over a 5-year period.
         </p>
       </div>
@@ -1007,25 +1009,45 @@ function About() {
 }
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans">
+    <div className={`flex flex-col min-h-screen font-sans ${isDarkMode ? 'dark bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'}`}>
       {/* Global Header Navigation */}
-      <nav className="bg-white shadow border-b border-slate-200">
+      <nav className="bg-white dark:bg-slate-800 shadow border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <Bird className="h-6 w-6 text-emerald-600 mr-2" />
-                <span className="text-xl font-bold text-emerald-800">AgriSim</span>
+                <Bird className="h-6 w-6 text-emerald-600 dark:text-emerald-400 mr-2" />
+                <span className="text-xl font-bold text-emerald-800 dark:text-emerald-400">AgriSim</span>
               </div>
               <div className="ml-6 flex space-x-8">
-                <Link to="/" className="border-emerald-500 text-slate-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link to="/" className="border-emerald-500 text-slate-900 dark:text-slate-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Simulator
                 </Link>
-                <Link to="/about" className="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link to="/about" className="border-transparent text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-700 dark:hover:text-slate-200 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   About
                 </Link>
               </div>
+            </div>
+            {/* Dark Mode Toggle */}
+            <div className="flex items-center ml-auto">
+              <button 
+                onClick={() => setIsDarkMode(!isDarkMode)} 
+                className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                aria-label="Toggle dark mode"
+              >
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
             </div>
           </div>
         </div>
