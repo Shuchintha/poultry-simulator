@@ -11,7 +11,10 @@ import {
   RotateCcw,
   BarChart4,
   Map,
-  Wallet
+  Wallet,
+  Wrench,
+  Tractor,
+  Leaf
 } from 'lucide-react';
 
 
@@ -60,6 +63,7 @@ function Simulator() {
   // Business Expansion Settings
   const [isExpansionEnabled, setIsExpansionEnabled] = useState(false);
   const [expansionInterval, setExpansionInterval] = useState(6);
+  const [includeBsfHydroponics, setIncludeBsfHydroponics] = useState(true);
 
   // Breed specific settings
   const [selectedBreed, setSelectedBreed] = useState('Kadaknath');
@@ -221,24 +225,67 @@ function Simulator() {
       const year = i + 1;
       const yearMonths = monthlyData.filter(d => d.year === year);
       
+      const peakActiveFlock = Math.max(...yearMonths.map(m => m.totalActiveFlock));
+      const peakChicks = Math.max(...yearMonths.map(m => m.currentChicks));
+      const peakHens = Math.max(...yearMonths.map(m => m.currentHens));
+      const averageMonthlyEggs = Math.round(yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0) / 12);
+      const newBatchesIntroduced = yearMonths.reduce((sum, d) => sum + d.newBatchesThisMonth, 0);
+      const maxMonthlyNewChicks = Math.max(...yearMonths.map(m => m.newBirdsThisMonth));
+
+      // Space / Land Requirements (Sq. Ft)
+      const freeRangeSqFt = peakActiveFlock * 10; // 10 sqft per bird for range
+      const shedSqFt = peakActiveFlock * 2; // 2 sqft per bird for shelter
+      const incubationSqFt = maxMonthlyNewChicks > 0 ? 150 + Math.ceil(maxMonthlyNewChicks / 1000) * 10 : 0;
+      const eggHandlingSqFt = averageMonthlyEggs > 0 ? 100 + Math.ceil(averageMonthlyEggs / 1000) * 10 : 0;
+      
+      // Instruments and Equipment
+      const feeders = Math.ceil(peakActiveFlock / 30); // 1 per 30 birds
+      const waterers = Math.ceil(peakActiveFlock / 30);
+      const eggCrates = Math.ceil(averageMonthlyEggs / 30); // 30 eggs per crate
+      const incubators = Math.ceil(maxMonthlyNewChicks / 1000); // Ex: 1000 eggs/chicks per incubator
+      const hatchers = Math.ceil(maxMonthlyNewChicks / 1000); // 1000 eggs/chicks per hatcher
+      const generators = peakActiveFlock > 0 ? (peakActiveFlock > 5000 ? 2 : 1) : 0;
+
+      // BSF & Hydroponics Requirements
+      const bsfSqFt = Math.ceil(peakActiveFlock * 0.5); // 0.5 sqft per bird
+      const hydroSqFt = Math.ceil(peakActiveFlock * 0.2); // 0.2 sqft per bird
+      const bsfBins = Math.ceil(peakActiveFlock / 200); // 1 bin per 200 birds waste
+      const hydroRacks = Math.ceil(peakActiveFlock / 500); // 1 rack per 500 birds fodder
+
       return {
         year,
-        newBatchesIntroduced: yearMonths.reduce((sum, d) => sum + d.newBatchesThisMonth, 0),
+        newBatchesIntroduced,
         averageActiveFlock: Math.round(yearMonths.reduce((sum, m) => sum + m.totalActiveFlock, 0) / 12),
         yearEndTotal: yearMonths[11].totalActiveFlock,
-        peakActiveFlock: Math.max(...yearMonths.map(m => m.totalActiveFlock)),
-        peakChicks: Math.max(...yearMonths.map(m => m.currentChicks)),
-        peakHens: Math.max(...yearMonths.map(m => m.currentHens)),
+        peakActiveFlock,
+        peakChicks,
+        peakHens,
         peakGrowingBatches: Math.max(...yearMonths.map(m => m.growingBatchesCount)),
         peakLayingBatches: Math.max(...yearMonths.map(m => m.layingBatchesCount)),
         totalEggs: yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0),
-        averageMonthlyEggs: Math.round(yearMonths.reduce((sum, d) => sum + d.monthlyEggs, 0) / 12),
+        averageMonthlyEggs,
         totalMeatBirds: yearMonths.reduce((sum, d) => sum + d.monthlyMeatBirds, 0),
         eggRevenue: yearMonths.reduce((sum, d) => sum + d.eggRevenue, 0),
         meatRevenue: yearMonths.reduce((sum, d) => sum + d.meatRevenue, 0),
         totalRevenue: yearMonths.reduce((sum, d) => sum + d.totalRevenue, 0),
         totalCost: yearMonths.reduce((sum, d) => sum + d.monthlyCost, 0),
         totalProfit: yearMonths.reduce((sum, d) => sum + d.netProfit, 0),
+        infra: {
+          freeRangeSqFt,
+          shedSqFt,
+          incubationSqFt,
+          eggHandlingSqFt,
+          feeders,
+          waterers,
+          eggCrates,
+          incubators,
+          hatchers,
+          generators,
+          bsfSqFt,
+          hydroSqFt,
+          bsfBins,
+          hydroRacks
+        }
       }
     });
 
@@ -256,7 +303,7 @@ function Simulator() {
         peakLandRequired: (maxFlockAcross5Years / 10000).toFixed(2)
       } 
     };
-  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt, costPerChick, monthlyCostPerBird, isExpansionEnabled, expansionInterval]);
+  }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt, costPerChick, monthlyCostPerBird, isExpansionEnabled, expansionInterval, includeBsfHydroponics]);
 
   return (
     <div className="pb-12">
@@ -329,6 +376,20 @@ function Simulator() {
                       </select>
                     </div>
                   )}
+
+                  {/* BSF & Hydroponics Checkbox */}
+                  <div className="flex items-center mt-4">
+                    <input
+                      type="checkbox"
+                      id="bsf"
+                      checked={includeBsfHydroponics}
+                      onChange={(e) => setIncludeBsfHydroponics(e.target.checked)}
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
+                    />
+                    <label htmlFor="bsf" className="ml-2 block text-sm font-medium text-slate-700">
+                      Include BSF & Hydroponics Calculations
+                    </label>
+                  </div>
                 </div>
                 
                 <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
@@ -570,6 +631,114 @@ function Simulator() {
           </div>
 
           
+
+          {/* Infrastructure & Equipment Planner */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
+              <Wrench className="h-5 w-5 text-slate-500 mr-2" />
+              <h2 className="text-lg font-semibold text-slate-800">Infrastructure & Equipment Planner</h2>
+            </div>
+            <div className="p-6 text-sm text-slate-600 mb-2">
+              Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                    <th className="p-4 font-medium sticky left-0 bg-slate-50 shadow-[1px_0_0_0_#e2e8f0]">Requirement</th>
+                    <th className="p-4 font-medium text-center">Year 1</th>
+                    <th className="p-4 font-medium text-center">Year 2</th>
+                    <th className="p-4 font-medium text-center">Year 3</th>
+                    <th className="p-4 font-medium text-center">Year 4</th>
+                    <th className="p-4 font-medium text-center">Year 5</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {/* Space & Land */}
+                  <tr className="bg-emerald-50/30">
+                    <td colSpan={6} className="p-3 font-semibold text-emerald-800 flex items-center">
+                      <Map className="h-4 w-4 mr-1" /> Space & Land Areas (Sq.Ft.)
+                    </td>
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Free Range Area</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.freeRangeSqFt.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Bird Shelter (Shed)</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.shedSqFt.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Incubation / Brooding Rm</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.incubationSqFt.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Egg Handling & Storage</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.eggHandlingSqFt.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  
+                  {/* Machinery & Hardware */}
+                  <tr className="bg-indigo-50/30">
+                    <td colSpan={6} className="p-3 font-semibold text-indigo-800 flex items-center">
+                      <Tractor className="h-4 w-4 mr-1" /> Instruments & Hardware
+                    </td>
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Incubators (1k cap.)</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.incubators}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Hatchers (1k cap.)</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.hatchers}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Feeders</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.feeders.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Waterers</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.waterers.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Egg Crates (30 cap.)</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.eggCrates.toLocaleString('en-IN')}</td>)}
+                  </tr>
+                  <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Backup Generators</td>
+                    {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.generators}</td>)}
+                  </tr>
+
+                  {/* Optional: BSF & Hydroponics */}
+                  {includeBsfHydroponics && (
+                    <>
+                      <tr className="bg-amber-50/30">
+                        <td colSpan={6} className="p-3 font-semibold text-amber-800 flex items-center">
+                          <Leaf className="h-4 w-4 mr-1" /> BSF Larvae & Hydroponics (Scaling with flock)
+                        </td>
+                      </tr>
+                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">BSF Space Req. (Sq.Ft.)</td>
+                        {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.bsfSqFt.toLocaleString('en-IN')}</td>)}
+                      </tr>
+                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">BSF Bins/Setups</td>
+                        {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.bsfBins.toLocaleString('en-IN')}</td>)}
+                      </tr>
+                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Hydroponics Space Req. (Sq.Ft.)</td>
+                        {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.hydroSqFt.toLocaleString('en-IN')}</td>)}
+                      </tr>
+                      <tr className="border-b border-slate-100 hover:bg-slate-50/50">
+                        <td className="p-4 pl-8 text-slate-700 font-medium sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">Hydroponics Racks</td>
+                        {simulationData.yearlyData.map(d => <td key={d.year} className="p-4 text-center">{d.infra.hydroRacks.toLocaleString('en-IN')}</td>)}
+                      </tr>
+                    </>
+                  )}
+
+                </tbody>
+              </table>
+            </div>
+          </div>
 
         </div>
       </main>
