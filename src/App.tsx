@@ -18,7 +18,9 @@ import {
   TableProperties, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight,
   LineChart as LineChartIcon,
   Sun,
-  Moon
+  Moon,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, 
@@ -74,6 +76,18 @@ function Simulator() {
   const [viewFinancials, setViewFinancials] = useState<'table' | 'chart'>('table');
   const [viewInfra, setViewInfra] = useState<'table' | 'chart'>('table');
   const [viewSchedule, setViewSchedule] = useState<'table' | 'chart'>('table');
+
+  // Section Dropdown States
+  const [openSections, setOpenSections] = useState({
+    population: true,
+    financial: true,
+    infra: true,
+    schedule: true
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // Farm Settings - Now driven by Target Egg Sales
   const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(10000);
@@ -543,11 +557,15 @@ function Simulator() {
           
           {/* Farm Demographics Table */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <div className="flex items-center">
+            <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.population ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
+              <button 
+                onClick={() => toggleSection('population')}
+                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+              >
                 <RotateCcw className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Farm Population Dynamics</h2>
-              </div>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Farm Population Dynamics</h2>
+                {openSections.population ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
+              </button>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewPopulation('table')}
@@ -564,7 +582,9 @@ function Simulator() {
               </div>
             </div>
             
-            {viewPopulation === 'table' ? (
+            {openSections.population && (
+             <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+             {viewPopulation === 'table' ? (
               <>
                 <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
                   Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
@@ -636,15 +656,21 @@ function Simulator() {
               </ResponsiveContainer>
             </div>
           )}
+             </div>
+            )}
           </div>
 
           {/* 5-Year Revenue Projection Table */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <div className="flex items-center">
+            <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.financial ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
+              <button 
+                onClick={() => toggleSection('financial')}
+                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+              >
                 <BarChart4 className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">5-Year Revenue & Profit Projection</h2>
-              </div>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">5-Year Revenue & Profit Projection</h2>
+                {openSections.financial ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
+              </button>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewFinancials('table')}
@@ -661,7 +687,9 @@ function Simulator() {
               </div>
             </div>
 
-            {viewFinancials === 'table' ? (
+            {openSections.financial && (
+             <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+             {viewFinancials === 'table' ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse whitespace-nowrap">
                   <thead>
@@ -710,17 +738,23 @@ function Simulator() {
                 </ResponsiveContainer>
               </div>
             )}
+             </div>
+            )}
           </div>
 
           
 
           {/* Infrastructure & Equipment Planner */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <div className="flex items-center">
+            <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.infra ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
+              <button 
+                onClick={() => toggleSection('infra')}
+                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+              >
                 <Wrench className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Infrastructure & Equipment Planner</h2>
-              </div>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Infrastructure & Equipment Planner</h2>
+                {openSections.infra ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
+              </button>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewInfra('table')}
@@ -737,7 +771,9 @@ function Simulator() {
               </div>
             </div>
             
-            {viewInfra === 'table' ? (
+            {openSections.infra && (
+             <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+             {viewInfra === 'table' ? (
               <>
                 <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
                   Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
@@ -856,15 +892,21 @@ function Simulator() {
                 </ResponsiveContainer>
               </div>
             )}
+             </div>
+            )}
           </div>
 
           {/* Monthly Detailed Schedule Table */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden w-full">
-            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <div className="flex items-center">
+            <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.schedule ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
+              <button 
+                onClick={() => toggleSection('schedule')}
+                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+              >
                 <CalendarDays className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Monthly Batch Schedule & Phases</h2>
-              </div>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Monthly Batch Schedule & Phases</h2>
+                {openSections.schedule ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
+              </button>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewSchedule('table')}
@@ -881,7 +923,9 @@ function Simulator() {
               </div>
             </div>
             
-            {viewSchedule === 'table' ? (
+            {openSections.schedule && (
+             <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+             {viewSchedule === 'table' ? (
               <>
                 <div className="p-6 pb-4 text-sm text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                   Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
@@ -954,6 +998,8 @@ function Simulator() {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
+            )}
+             </div>
             )}
           </div>
 
