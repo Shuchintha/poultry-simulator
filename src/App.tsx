@@ -1106,7 +1106,7 @@ function About() {
 }
 
 export default function App() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {
