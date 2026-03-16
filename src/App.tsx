@@ -14,6 +14,7 @@ import {
   Wallet
 } from 'lucide-react';
 
+
 const BREED_PRESETS = {
   'Custom': {
     eggsPerYear: 200, monthsToLaying: 5, pricePerEgg: 8, pricePerKg: 250, avgWeight: 2, sellBatchAt: 18, costPerChick: 30, monthlyCostPerBird: 60
