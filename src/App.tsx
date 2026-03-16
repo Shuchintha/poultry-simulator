@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
 import { 
   Egg, 
   Bird, 
@@ -53,7 +54,7 @@ const formatINR = (amount) => {
   }).format(amount);
 };
 
-export default function App() {
+function Simulator() {
   // Farm Settings - Now driven by Target Egg Sales
   const [targetMonthlyEggs, setTargetMonthlyEggs] = useState(10000);
   
@@ -259,7 +260,7 @@ export default function App() {
   }, [batchSize, batchFrequency, eggsPerYear, monthsToLaying, pricePerEgg, pricePerKg, avgWeight, sellBatchAt, costPerChick, monthlyCostPerBird, isExpansionEnabled, expansionInterval]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
+    <div className="pb-12">
       {/* Header */}
       <header className="bg-emerald-700 text-white py-6 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -640,6 +641,68 @@ export default function App() {
             </div>
           </div>
       </div>
+    </div>
+  );
+}
+
+function About() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+        <h2 className="text-2xl font-bold text-slate-800 mb-4">About This Simulator</h2>
+        <p className="text-slate-600 max-w-3xl">
+          The Free Range Poultry Simulator is designed to help farmers and entrepreneurs model the financial and operational aspects of a poultry business. By adjusting parameters such as breed, egg production, and costs, you can forecast your revenue and understand the lifecycle of your flock over a 5-year period.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* Global Header Navigation */}
+      <nav className="bg-white shadow border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <Bird className="h-6 w-6 text-emerald-600 mr-2" />
+                <span className="text-xl font-bold text-emerald-800">AgriSim</span>
+              </div>
+              <div className="ml-6 flex space-x-8">
+                <Link to="/" className="border-emerald-500 text-slate-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Simulator
+                </Link>
+                <Link to="/about" className="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  About
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content Area mapping to Routes */}
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Simulator />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </div>
+
+      {/* Global Footer */}
+      <footer className="bg-slate-800 border-t border-slate-700 text-slate-300 mt-auto">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center space-x-2 mb-4 md:mb-0">
+            <Bird className="h-5 w-5 text-emerald-500" />
+            <span className="font-semibold text-white">Poultry Farming Simulator</span>
+          </div>
+          <p className="text-sm">
+            &copy; {new Date().getFullYear()} AgriSim. Planted with care.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
