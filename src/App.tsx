@@ -15,7 +15,7 @@ import {
   Wrench,
   Tractor,
   Leaf,
-  TableProperties,
+  TableProperties, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight,
   LineChart as LineChartIcon,
   Sun,
   Moon
@@ -65,6 +65,10 @@ const formatINR = (amount: number) => {
 };
 
 function Simulator() {
+  // Sidebar Toggle States
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
+
   // View Toggle States
   const [viewPopulation, setViewPopulation] = useState<'table' | 'chart'>('table');
   const [viewFinancials, setViewFinancials] = useState<'table' | 'chart'>('table');
@@ -324,7 +328,7 @@ function Simulator() {
   return (
     <div className="pb-12">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <header className="bg-emerald-700 text-white py-6 px-8 shadow-md rounded-2xl w-fit">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -335,14 +339,24 @@ function Simulator() {
         </header>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Sidebar - Inputs */}
-        <div className="lg:col-span-3 space-y-6">
+        {isLeftSidebarOpen && (
+        <div className="lg:col-span-3 space-y-6 transition-all duration-300">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center">
-              <Settings className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Farm Parameters</h2>
+            <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div className="flex items-center">
+                <Settings className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Farm Parameters</h2>
+              </div>
+              <button 
+                onClick={() => setIsLeftSidebarOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+                title="Close sidebar"
+              >
+                <PanelLeftClose className="h-5 w-5" />
+              </button>
             </div>
             
             <div className="p-6 space-y-5">
@@ -503,9 +517,29 @@ function Simulator() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Center Content - Tables */}
-        <div className="lg:col-span-6 space-y-6">
+        <div className={`space-y-6 transition-all duration-300 ${!isLeftSidebarOpen && !isRightSidebarOpen ? 'lg:col-span-12' : (!isLeftSidebarOpen || !isRightSidebarOpen) ? 'lg:col-span-9' : 'lg:col-span-6'}`}>
+          <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            {!isLeftSidebarOpen ? (
+              <button 
+                onClick={() => setIsLeftSidebarOpen(true)}
+                className="flex items-center text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <PanelLeft className="h-5 w-5 mr-2" /> Open Parameters
+              </button>
+            ) : <div />}
+            
+            {!isRightSidebarOpen ? (
+              <button 
+                onClick={() => setIsRightSidebarOpen(true)}
+                className="flex items-center text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                Open Analytics <PanelRight className="h-5 w-5 ml-2" />
+              </button>
+            ) : <div />}
+          </div>
           
           {/* Farm Demographics Table */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -870,7 +904,7 @@ function Simulator() {
                     <tr key={`month-${data.month}`} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900">
                       <td className="p-4 font-semibold text-slate-700 dark:text-slate-200">Month {data.month} <span className="text-xs text-slate-400 font-normal ml-1">(Y{data.year})</span></td>
                       
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center bg-blue-50/20 dark:bg-blue-900/10">
                         {data.newBatchesThisMonth > 0 ? (
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
                             +{data.newBatchesThisMonth} Batch ({data.newBirdsThisMonth.toLocaleString('en-IN')})
@@ -880,7 +914,7 @@ function Simulator() {
                         )}
                       </td>
                       
-                      <td className="p-4 text-right font-medium text-indigo-600 bg-indigo-50/20">
+                      <td className="p-4 text-right font-medium text-indigo-600 bg-indigo-20">
                         {data.broodingChicks > 0 ? data.broodingChicks.toLocaleString('en-IN') : '-'}
                       </td>
                       
@@ -926,8 +960,24 @@ function Simulator() {
         </div>
 
         {/* Right Content - Stats Section */}
-        <div className="lg:col-span-3 space-y-6">
+        {isRightSidebarOpen && (
+        <div className="lg:col-span-3 space-y-6 transition-all duration-300">
           <div className="flex flex-col gap-4">
+            
+            {/* Header for Right Sidebar with Close Button */}
+            <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center">
+                Financial Summary
+              </h2>
+              <button 
+                onClick={() => setIsRightSidebarOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+                title="Close sidebar"
+              >
+                <PanelRightClose className="h-5 w-5" />
+              </button>
+            </div>
+
             <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-xl p-5 border border-emerald-200 dark:border-emerald-800 shadow-sm flex flex-col justify-center">
               <div className="text-emerald-800 dark:text-emerald-300 text-sm font-medium mb-1 flex items-center">
                 <TrendingUp className="h-4 w-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Avg Yearly Revenue
@@ -985,10 +1035,11 @@ function Simulator() {
             </div>
           </div>
         </div>
+        )}
 
       </main>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
         
       </div>
     </div>
@@ -997,7 +1048,7 @@ function Simulator() {
 
 function About() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-8">
       <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">About This Simulator</h2>
         <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
@@ -1023,7 +1074,7 @@ export default function App() {
     <div className={`flex flex-col min-h-screen font-sans ${isDarkMode ? 'dark bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-800'}`}>
       {/* Global Header Navigation */}
       <nav className="bg-white dark:bg-slate-800 shadow border-b border-slate-200 dark:border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
@@ -1063,7 +1114,7 @@ export default function App() {
 
       {/* Global Footer */}
       <footer className="bg-slate-800 border-t border-slate-700 text-slate-300 mt-auto">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+        <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-2 mb-4 md:mb-0">
             <Bird className="h-5 w-5 text-emerald-500" />
             <span className="font-semibold text-white">Poultry Farming Simulator</span>
