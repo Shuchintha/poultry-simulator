@@ -317,10 +317,10 @@ function Simulator() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Sidebar - Inputs */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center">
               <Settings className="h-5 w-5 text-slate-500 mr-2" />
@@ -486,48 +486,9 @@ function Simulator() {
           </div>
         </div>
 
-        {/* Right Content - Analytics & Tables */}
-        <div className="lg:col-span-8 space-y-6">
+        {/* Center Content - Tables */}
+        <div className="lg:col-span-6 space-y-6">
           
-          {/* Top KPI Summary */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Total 5-Yr Revenue
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
-            </div>
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
-                <TrendingDown className="h-4 w-4 mr-1 text-rose-500" /> Total 5-Yr Cost
-              </div>
-              <div className="text-2xl font-bold text-rose-600">{formatINR(simulationData.summary.totalCost)}</div>
-            </div>
-            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-rose-50 border-rose-200'}`}>
-              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
-                <Wallet className="h-4 w-4 mr-1" /> 5-Yr Net Profit
-              </div>
-              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-blue-700' : 'text-rose-700'}`}>
-                {formatINR(simulationData.summary.netProfit)}
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-xs font-medium mb-1">Egg Revenue</div>
-              <div className="text-lg font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
-              <div className="text-slate-500 text-xs font-medium mb-1">Meat Revenue</div>
-              <div className="text-lg font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
-            </div>
-            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 shadow-sm flex flex-col justify-center">
-              <div className="text-emerald-800 text-xs font-medium mb-1 flex items-center">
-                <Map className="h-3 w-3 mr-1" /> Peak Land Required
-              </div>
-              <div className="text-lg font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
-            </div>
-          </div>
-
           {/* 5-Year Revenue Projection Table */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
@@ -739,8 +700,53 @@ function Simulator() {
               </table>
             </div>
           </div>
-
         </div>
+
+        {/* Right Content - Stats Section */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col gap-4">
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" /> Total 5-Yr Revenue
+              </div>
+              <div className="text-2xl font-bold text-slate-800">{formatINR(simulationData.summary.totalRevenue)}</div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-sm font-medium mb-1 flex items-center">
+                <TrendingDown className="h-4 w-4 mr-1 text-rose-500" /> Total 5-Yr Cost
+              </div>
+              <div className="text-2xl font-bold text-rose-600">{formatINR(simulationData.summary.totalCost)}</div>
+            </div>
+            
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.netProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-rose-50 border-rose-200'}`}>
+              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.netProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
+                <Wallet className="h-4 w-4 mr-1" /> 5-Yr Net Profit
+              </div>
+              <div className={`text-2xl font-bold ${simulationData.summary.netProfit >= 0 ? 'text-blue-700' : 'text-rose-700'}`}>
+                {formatINR(simulationData.summary.netProfit)}
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-xs font-medium mb-1">Egg Revenue</div>
+              <div className="text-lg font-bold text-amber-600">{formatINR(simulationData.summary.totalEggRev)}</div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="text-slate-500 text-xs font-medium mb-1">Meat Revenue</div>
+              <div className="text-lg font-bold text-emerald-600">{formatINR(simulationData.summary.totalMeatRev)}</div>
+            </div>
+            
+            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 shadow-sm flex flex-col justify-center">
+              <div className="text-emerald-800 text-xs font-medium mb-1 flex items-center">
+                <Map className="h-3 w-3 mr-1" /> Peak Land Required
+              </div>
+              <div className="text-lg font-bold text-emerald-700">{simulationData.summary.peakLandRequired} Acres</div>
+            </div>
+          </div>
+        </div>
+
       </main>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
