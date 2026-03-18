@@ -184,8 +184,11 @@ function Simulator() {
       batches.forEach(batch => {
         batch.age += 1;
 
+        // Apply 20% reduction to feed/maintenance cost if using BSF & Hydroponics
+        const effectiveMonthlyCostPerBird = includeBsfHydroponics ? monthlyCostPerBird * 0.8 : monthlyCostPerBird;
+
         // Add monthly feed and maintenance cost for this batch
-        monthlyCost += batch.size * monthlyCostPerBird;
+        monthlyCost += batch.size * effectiveMonthlyCostPerBird;
 
         // Calculate egg production for mature hens before they are potentially sold
         if (batch.age > monthsToLaying && batch.age <= sellBatchAt) {
@@ -357,7 +360,7 @@ function Simulator() {
         
         {/* Left Sidebar - Inputs */}
         {isLeftSidebarOpen && (
-        <div className="lg:col-span-3 space-y-6 transition-all duration-300">
+        <div className="lg:col-span-3 space-y-6 transition-all duration-300 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center">
