@@ -79,6 +79,7 @@ export default function PoultrySimulator() {
   // Section Dropdown States
   const [openSections, setOpenSections] = useState({
     population: true,
+    timeline: true,
     financial: true,
     infra: true,
     schedule: true
@@ -655,6 +656,86 @@ export default function PoultrySimulator() {
             </div>
           )}
              </div>
+            )}
+          </div>
+
+          {/* Farm Events Timeline */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.timeline ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
+              <div className="flex items-center">
+                <button 
+                  onClick={() => toggleSection('timeline')}
+                  className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+                >
+                  <TrendingUp className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Flock Events Timeline</h2>
+                  {openSections.timeline ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />}
+                </button>
+                <div className="group relative flex items-center">
+                  <Info className="h-4 w-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+                  <div className="absolute left-0 top-full mt-2 w-[300px] p-3 bg-slate-800 dark:bg-slate-700 text-slate-50 text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-xl z-[100] pointer-events-none">
+                    Horizontal timeline mapping new flock additions, initial egg production, and meat bird sales.
+                    <div className="absolute -top-1 left-1.5 w-2 h-2 bg-slate-800 dark:bg-slate-700 rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {openSections.timeline && (
+              <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+                <div className="p-6 overflow-x-auto custom-scrollbar">
+                  <div className="flex min-w-max pb-4 pt-2">
+                    {simulationData.monthlyData.filter((m, i, arr) => m.newBatchesThisMonth > 0 || m.monthlyMeatBirds > 0 || (i > 0 && m.layingBatchesCount > arr[i-1].layingBatchesCount)).map((data, index, filteredArr) => {
+                      const events = [];
+                      if (data.newBatchesThisMonth > 0) events.push({ type: 'buy', label: `+${data.newBirdsThisMonth.toLocaleString('en-IN')} Chicks (${data.newBatchesThisMonth} Batch${data.newBatchesThisMonth > 1 ? 'es':''})` });
+                      if (data.monthlyMeatBirds > 0) events.push({ type: 'sell', label: `-${data.monthlyMeatBirds.toLocaleString('en-IN')} Birds sold` });
+                      if (data.month > 1 && data.layingBatchesCount > simulationData.monthlyData[data.month-2].layingBatchesCount) events.push({ type: 'egg', label: 'New batch started laying' });
+
+                      return (
+                        <div key={`timeline-${data.month}`} className="relative flex flex-col items-center w-56 shrink-0 px-2">
+                          {/* Connecting Lines */}
+                          {index !== 0 && (
+                            <div className="absolute top-[20px] left-[-50%] w-full h-1 bg-slate-200 dark:bg-slate-700 -z-10"></div>
+                          )}
+                          {index !== filteredArr.length - 1 && (
+                            <div className="absolute top-[20px] left-[50%] w-full h-1 bg-slate-200 dark:bg-slate-700 -z-10"></div>
+                          )}
+                          
+                          {/* Event Circle */}
+                          <div className="mx-auto w-10 h-10 rounded-full border-[3px] border-white dark:border-slate-800 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 shadow-sm z-10">
+                            <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400">M{data.month}</span>
+                          </div>
+
+                          {/* Content Card */}
+                          <div className="mt-4 bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700 shadow-sm w-full relative group hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
+                            <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-2">Year {data.year}</div>
+                            <div className="space-y-1.5">
+                               {events.map((ev, i) => (
+                                 <div key={i} className={`text-[11px] px-2 py-1 rounded font-medium flex items-center ${
+                                   ev.type === 'buy' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' :
+                                   ev.type === 'sell' ? 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' :
+                                   'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                 }`}>
+                                   <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                      ev.type === 'buy' ? 'bg-indigo-500' :
+                                      ev.type === 'sell' ? 'bg-rose-500' :
+                                      'bg-amber-500'
+                                   }`}></div>
+                                   {ev.label}
+                                 </div>
+                               ))}
+                            </div>
+                            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-400 flex justify-between items-center">
+                              <span>Total Flock</span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200">{data.totalActiveFlock.toLocaleString('en-IN')}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
