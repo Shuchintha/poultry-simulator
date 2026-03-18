@@ -344,23 +344,13 @@ function Simulator() {
 
   return (
     <div className="pb-12">
-      {/* Header */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <header className="bg-emerald-700 text-white py-6 px-8 shadow-md rounded-2xl w-fit">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Bird className="h-8 w-8 text-emerald-200" />
-              <h1 className="text-2xl font-bold tracking-tight">Free Range Poultry Simulator (India)</h1>
-            </div>
-          </div>
-        </header>
-      </div>
+      
 
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Sidebar - Inputs */}
         {isLeftSidebarOpen && (
-        <div className="lg:col-span-3 space-y-6 transition-all duration-300 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
+        <div className="lg:col-span-3 space-y-6 transition-all duration-300 lg:sticky lg:top-6 lg:max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="bg-slate-100 dark:bg-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center">
@@ -1127,8 +1117,12 @@ export default function App() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <Bird className="h-6 w-6 text-emerald-600 dark:text-emerald-400 mr-2" />
-                <span className="text-xl font-bold text-emerald-800 dark:text-emerald-400">AgriSim</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Bird className="h-8 w-8 text-emerald-200" />
+                  <h1 className="text-2xl font-bold tracking-tight">Free Range Poultry Simulator</h1>
+                </div>
+              </div>
               </div>
               <div className="ml-6 flex space-x-8">
                 <Link to="/" className="border-emerald-500 text-slate-900 dark:text-slate-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
