@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   Egg, 
-   
+  Info,
   IndianRupee, 
   CalendarDays, 
   Settings, 
@@ -550,14 +550,23 @@ export default function PoultrySimulator() {
           {/* Farm Demographics Table */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.population ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
-              <button 
-                onClick={() => toggleSection('population')}
-                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
-              >
-                <RotateCcw className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Farm Population Dynamics</h2>
-                {openSections.population ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
-              </button>
+              <div className="flex items-center">
+                <button 
+                  onClick={() => toggleSection('population')}
+                  className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+                >
+                  <RotateCcw className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Farm Population Dynamics</h2>
+                  {openSections.population ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />}
+                </button>
+                <div className="group relative flex items-center">
+                  <Info className="h-4 w-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+                  <div className="absolute left-0 top-full mt-2 w-[300px] p-3 bg-slate-800 dark:bg-slate-700 text-slate-50 text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-xl z-[100] pointer-events-none">
+                    Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
+                    <div className="absolute -top-1 left-1.5 w-2 h-2 bg-slate-800 dark:bg-slate-700 rotate-45"></div>
+                  </div>
+                </div>
+              </div>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewPopulation('table')}
@@ -578,10 +587,7 @@ export default function PoultrySimulator() {
              <div className="animate-in slide-in-from-top-2 fade-in duration-200">
              {viewPopulation === 'table' ? (
               <>
-                <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
-                  Showing the maximum concurrent birds required during the year, highlighting the peak number of growing chicks and laying hens at any point within that year.
-                </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto pt-4">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
@@ -739,14 +745,23 @@ export default function PoultrySimulator() {
           {/* Infrastructure & Equipment Planner */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.infra ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
-              <button 
-                onClick={() => toggleSection('infra')}
-                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
-              >
-                <Wrench className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Infrastructure & Equipment Planner</h2>
-                {openSections.infra ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
-              </button>
+              <div className="flex items-center">
+                <button 
+                  onClick={() => toggleSection('infra')}
+                  className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+                >
+                  <Wrench className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Infrastructure & Equipment Planner</h2>
+                  {openSections.infra ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />}
+                </button>
+                <div className="group relative flex items-center">
+                  <Info className="h-4 w-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+                  <div className="absolute left-0 top-full mt-2 w-[350px] p-3 bg-slate-800 dark:bg-slate-700 text-slate-50 text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-xl z-[100] pointer-events-none">
+                    Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
+                    <div className="absolute -top-1 left-1.5 w-2 h-2 bg-slate-800 dark:bg-slate-700 rotate-45"></div>
+                  </div>
+                </div>
+              </div>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewInfra('table')}
@@ -767,10 +782,6 @@ export default function PoultrySimulator() {
              <div className="animate-in slide-in-from-top-2 fade-in duration-200">
              {viewInfra === 'table' ? (
               <>
-                <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
-                  Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
-                </div>
-                
                 {/* Desktop View: Data Table */}
                 <div className="hidden md:block overflow-x-auto pb-4">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
@@ -990,14 +1001,23 @@ export default function PoultrySimulator() {
           {/* Monthly Detailed Schedule Table */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden w-full">
             <div className={`bg-slate-100 dark:bg-slate-700 px-6 py-4 flex items-center justify-between transition-colors ${openSections.schedule ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}>
-              <button 
-                onClick={() => toggleSection('schedule')}
-                className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
-              >
-                <CalendarDays className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Monthly Batch Schedule & Phases</h2>
-                {openSections.schedule ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
-              </button>
+              <div className="flex items-center">
+                <button 
+                  onClick={() => toggleSection('schedule')}
+                  className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+                >
+                  <CalendarDays className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mr-2">Monthly Batch Schedule & Phases</h2>
+                  {openSections.schedule ? <ChevronUp className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" /> : <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-2" />}
+                </button>
+                <div className="group relative flex items-center">
+                  <Info className="h-4 w-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+                  <div className="absolute left-0 top-full mt-2 w-[350px] p-3 bg-slate-800 dark:bg-slate-700 text-slate-50 text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-xl z-[100] pointer-events-none min-w-[250px]">
+                    Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
+                    <div className="absolute -top-1 left-1.5 w-2 h-2 bg-slate-800 dark:bg-slate-700 rotate-45"></div>
+                  </div>
+                </div>
+              </div>
               <div className="flex items-center bg-slate-200 dark:bg-slate-900 rounded-lg p-1">
                 <button 
                   onClick={() => setViewSchedule('table')}
@@ -1018,11 +1038,7 @@ export default function PoultrySimulator() {
              <div className="animate-in slide-in-from-top-2 fade-in duration-200">
              {viewSchedule === 'table' ? (
               <>
-                <div className="p-6 pb-4 text-sm text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
-                  Detailed 60-month breakdown showing when new day-old chicks are introduced (Brooding phase), their transition into the Growing phase, when they start Laying, and when they are eventually Sold.
-                </div>
-                
-                <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative">
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative border-t border-slate-200 dark:border-slate-700">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead className="sticky top-0 z-10 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
                   <tr className="text-slate-500 dark:text-slate-400 text-sm">
