@@ -691,9 +691,9 @@ export default function PoultrySimulator() {
                     <th className="p-4 font-medium text-right">Egg Rev</th>
                     <th className="p-4 font-medium text-right">Birds Sold (Meat)</th>
                     <th className="p-4 font-medium text-right">Meat Rev</th>
-                    <th className="p-4 font-medium text-right text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20">Total Rev</th>
+                    <th className="p-4 font-medium text-right text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20">Total Rev</th>
                     <th className="p-4 font-medium text-right text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-900/20">Total Cost</th>
-                    <th className="p-4 font-medium text-right text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20">Net Profit</th>
+                    <th className="p-4 font-medium text-right text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20">Net Profit</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -704,9 +704,9 @@ export default function PoultrySimulator() {
                       <td className="p-4 text-right text-slate-600 dark:text-slate-300">{formatINR(data.eggRevenue)}</td>
                       <td className="p-4 text-right text-slate-600 dark:text-slate-300">{data.totalMeatBirds.toLocaleString('en-IN')}</td>
                       <td className="p-4 text-right text-slate-600 dark:text-slate-300">{formatINR(data.meatRevenue)}</td>
-                      <td className="p-4 text-right font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10">{formatINR(data.totalRevenue)}</td>
+                      <td className="p-4 text-right font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10">{formatINR(data.totalRevenue)}</td>
                       <td className="p-4 text-right font-bold text-rose-600 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-900/10">{formatINR(data.totalCost)}</td>
-                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-blue-700 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-900/10' : 'text-rose-700 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-900/10'}`}>
+                      <td className={`p-4 text-right font-bold ${data.totalProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50/30 dark:bg-emerald-900/10' : 'text-rose-700 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-900/10'}`}>
                         {formatINR(data.totalProfit)}
                       </td>
                     </tr>
@@ -723,9 +723,9 @@ export default function PoultrySimulator() {
                     <YAxis tickFormatter={(val) => `₹${(val / 100000).toFixed(1)}L`} width={80} />
                     <RechartsTooltip formatter={(value: any) => formatINR(value)} labelFormatter={(label) => `Year ${label}`} />
                     <Legend />
-                    <Bar dataKey="totalRevenue" name="Total Revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="totalRevenue" name="Total Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="totalCost" name="Total Cost" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                    <Line type="monotone" dataKey="totalProfit" name="Net Profit" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="totalProfit" name="Net Profit" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -770,11 +770,13 @@ export default function PoultrySimulator() {
                 <div className="p-6 text-sm text-slate-600 dark:text-slate-300 mb-2">
                   Estimated requirements based on the predicted bird population and flock activity for each year. Land and equipment must scale with growth.
                 </div>
-                <div className="overflow-x-auto">
+                
+                {/* Desktop View: Data Table */}
+                <div className="hidden md:block overflow-x-auto pb-4">
                   <table className="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
-                    <th className="p-4 font-medium sticky left-0 bg-slate-50 dark:bg-slate-900 shadow-[1px_0_0_0_#e2e8f0]">Requirement</th>
+                    <th className="p-4 font-medium sticky left-0 z-10 bg-slate-50 dark:bg-slate-900 shadow-[1px_0_0_0_#e2e8f0]">Requirement</th>
                     <th className="p-4 font-medium text-center">Year 1</th>
                     <th className="p-4 font-medium text-center">Year 2</th>
                     <th className="p-4 font-medium text-center">Year 3</th>
@@ -784,10 +786,11 @@ export default function PoultrySimulator() {
                 </thead>
                 <tbody className="text-sm">
                   {/* Space & Land */}
-                  <tr className="bg-emerald-50 dark:bg-emerald-900/10">
-                    <td colSpan={6} className="p-3 font-semibold text-emerald-800 dark:text-emerald-300 flex items-center">
-                      <Map className="h-4 w-4 mr-1" /> Space & Land Areas (Sq.Ft.)
+                  <tr className="bg-emerald-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <td className="p-3 font-semibold text-emerald-800 dark:text-emerald-400 sticky left-0 bg-emerald-50 dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0] z-10">
+                      <div className="flex items-center"><Map className="h-4 w-4 mr-1" /> Space & Land Areas (Sq.Ft.)</div>
                     </td>
+                    <td colSpan={5} className="bg-emerald-50 dark:bg-slate-800"></td>
                   </tr>
                   <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
                     <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Free Range Area</td>
@@ -807,10 +810,11 @@ export default function PoultrySimulator() {
                   </tr>
                   
                   {/* Machinery & Hardware */}
-                  <tr className="bg-indigo-50/30">
-                    <td colSpan={6} className="p-3 font-semibold text-indigo-800 flex items-center">
-                      <Tractor className="h-4 w-4 mr-1" /> Instruments & Hardware
+                  <tr className="bg-indigo-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <td className="p-3 font-semibold text-indigo-800 dark:text-indigo-400 sticky left-0 bg-indigo-50 dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0] z-10">
+                      <div className="flex items-center"><Tractor className="h-4 w-4 mr-1" /> Instruments & Hardware</div>
                     </td>
+                    <td colSpan={5} className="bg-indigo-50 dark:bg-slate-800"></td>
                   </tr>
                   <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
                     <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">Incubators (1k cap.)</td>
@@ -840,10 +844,11 @@ export default function PoultrySimulator() {
                   {/* Optional: BSF & Hydroponics */}
                   {includeBsfHydroponics && (
                     <>
-                      <tr className="bg-amber-50/30 dark:bg-amber-900/10">
-                        <td colSpan={6} className="p-3 font-semibold text-amber-800 flex items-center">
-                          <Leaf className="h-4 w-4 mr-1" /> BSF Larvae & Hydroponics (Scaling with flock)
+                      <tr className="bg-amber-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                        <td className="p-3 font-semibold text-amber-800 dark:text-amber-500 sticky left-0 bg-amber-50 dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0] z-10">
+                          <div className="flex items-center"><Leaf className="h-4 w-4 mr-1" /> BSF Larvae & Hydroponics</div>
                         </td>
+                        <td colSpan={5} className="bg-amber-50 dark:bg-slate-800"></td>
                       </tr>
                       <tr className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50">
                         <td className="p-4 pl-8 text-slate-700 dark:text-slate-200 font-medium sticky left-0 bg-white dark:bg-slate-800 shadow-[1px_0_0_0_#e2e8f0]">BSF Space Req. (Sq.Ft.)</td>
@@ -866,6 +871,100 @@ export default function PoultrySimulator() {
 
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile View: Responsive Cards Layout */}
+            <div className="block md:hidden px-4 pb-6 space-y-8">
+              {/* Category: Space & Land Areas */}
+              <div className="space-y-4">
+                <h3 className="flex items-center text-sm font-semibold text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-slate-800 px-3 py-2 rounded-lg border border-emerald-100 dark:border-slate-700">
+                  <Map className="h-4 w-4 mr-2" /> Space & Land Areas (Sq.Ft.)
+                </h3>
+                {[
+                  { label: "Free Range Area", key: "freeRangeSqFt" },
+                  { label: "Bird Shelter (Shed)", key: "shedSqFt" },
+                  { label: "Incubation / Brooding Rm", key: "incubationSqFt" },
+                  { label: "Egg Handling & Storage", key: "eggHandlingSqFt" },
+                ].map((item) => (
+                  <div key={item.key} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                      <h4 className="font-medium text-slate-800 dark:text-slate-200 text-sm">{item.label}</h4>
+                    </div>
+                    <div className="grid grid-cols-5 divide-x divide-slate-100 dark:divide-slate-700 text-center">
+                      {simulationData.yearlyData.map((d) => (
+                        <div key={d.year} className="py-3 px-1 flex flex-col justify-center">
+                          <span className="text-[10px] uppercase font-semibold text-slate-400 mb-1">Y{d.year}</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {(d.infra as any)[item.key].toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Category: Machinery & Hardware */}
+              <div className="space-y-4">
+                <h3 className="flex items-center text-sm font-semibold text-indigo-800 dark:text-indigo-400 bg-indigo-50 dark:bg-slate-800 px-3 py-2 rounded-lg border border-indigo-100 dark:border-slate-700">
+                  <Tractor className="h-4 w-4 mr-2" /> Instruments & Hardware
+                </h3>
+                {[
+                  { label: "Incubators (1k cap.)", key: "incubators" },
+                  { label: "Hatchers (1k cap.)", key: "hatchers" },
+                  { label: "Feeders", key: "feeders" },
+                  { label: "Waterers", key: "waterers" },
+                  { label: "Egg Crates (30 cap.)", key: "eggCrates" },
+                  { label: "Backup Generators", key: "generators" },
+                ].map((item) => (
+                  <div key={item.key} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                      <h4 className="font-medium text-slate-800 dark:text-slate-200 text-sm">{item.label}</h4>
+                    </div>
+                    <div className="grid grid-cols-5 divide-x divide-slate-100 dark:divide-slate-700 text-center">
+                      {simulationData.yearlyData.map((d) => (
+                        <div key={d.year} className="py-3 px-1 flex flex-col justify-center">
+                          <span className="text-[10px] uppercase font-semibold text-slate-400 mb-1">Y{d.year}</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {(d.infra as any)[item.key].toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Category: BSF & Hydroponics */}
+              {includeBsfHydroponics && (
+                <div className="space-y-4">
+                  <h3 className="flex items-center text-sm font-semibold text-amber-800 dark:text-amber-500 bg-amber-50 dark:bg-slate-800 px-3 py-2 rounded-lg border border-amber-100 dark:border-slate-700">
+                    <Leaf className="h-4 w-4 mr-2" /> BSF Larvae & Hydroponics
+                  </h3>
+                  {[
+                    { label: "BSF Space Req. (Sq.Ft.)", key: "bsfSqFt" },
+                    { label: "BSF Bins/Setups", key: "bsfBins" },
+                    { label: "Hydroponics Space Req. (Sq.Ft.)", key: "hydroSqFt" },
+                    { label: "Hydroponics Racks", key: "hydroRacks" },
+                  ].map((item) => (
+                    <div key={item.key} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                      <div className="bg-slate-50 dark:bg-slate-900/50 px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                        <h4 className="font-medium text-slate-800 dark:text-slate-200 text-sm">{item.label}</h4>
+                      </div>
+                      <div className="grid grid-cols-5 divide-x divide-slate-100 dark:divide-slate-700 text-center">
+                        {simulationData.yearlyData.map((d) => (
+                          <div key={d.year} className="py-3 px-1 flex flex-col justify-center">
+                            <span className="text-[10px] uppercase font-semibold text-slate-400 mb-1">Y{d.year}</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {(d.infra as any)[item.key].toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             </>
             ) : (
@@ -1016,25 +1115,25 @@ export default function PoultrySimulator() {
               </button>
             </div>
 
-            <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-xl p-5 border border-emerald-200 dark:border-emerald-800 shadow-sm flex flex-col justify-center">
-              <div className="text-emerald-800 dark:text-emerald-300 text-sm font-medium mb-1 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Avg Yearly Revenue
+            <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-5 border border-blue-200 dark:border-blue-800 shadow-sm flex flex-col justify-center">
+              <div className="text-blue-800 dark:text-blue-300 text-sm font-medium mb-1 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-1 text-blue-600 dark:text-blue-400" /> Avg Yearly Revenue
               </div>
-              <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatINR(simulationData.summary.avgYearlyRevenue)}</div>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">{formatINR(simulationData.summary.avgYearlyRevenue)}</div>
             </div>
 
-            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'}`}>
-              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-800' : 'text-rose-800'}`}>
+            <div className={`rounded-xl p-5 border shadow-sm flex flex-col justify-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'}`}>
+              <div className={`text-sm font-medium mb-1 flex items-center ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-emerald-800' : 'text-rose-800'}`}>
                 <Wallet className="h-4 w-4 mr-1" /> Avg Yearly Profit
               </div>
-              <div className={`text-2xl font-bold ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-rose-700 dark:text-rose-400'}`}>
+              <div className={`text-2xl font-bold ${simulationData.summary.avgYearlyProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                 {formatINR(simulationData.summary.avgYearlyProfit)}
               </div>
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center mt-2">
               <div className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Total 5-Yr Revenue
+                <TrendingUp className="h-4 w-4 mr-1 text-blue-600 dark:text-blue-400" /> Total 5-Yr Revenue
               </div>
               <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{formatINR(simulationData.summary.totalRevenue)}</div>
             </div>
