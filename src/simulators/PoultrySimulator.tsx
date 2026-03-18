@@ -684,7 +684,11 @@ export default function PoultrySimulator() {
             {openSections.timeline && (
               <div className="animate-in slide-in-from-top-2 fade-in duration-200">
                 <div className="p-6 overflow-x-auto custom-scrollbar">
-                  <div className="flex min-w-max pb-4 pt-2">
+                  <div className="relative pt-6 pb-8 px-4">
+                    {/* The Track Line */}
+                    <div className="absolute top-[38px] left-0 w-full h-0 border-t-2 border-dashed border-slate-200 dark:border-slate-700/80 -z-10"></div>
+                    
+                    <div className="flex flex-row min-w-max gap-8 relative z-0">
                     {simulationData.monthlyData.filter((m, i, arr) => m.newBatchesThisMonth > 0 || m.monthlyMeatBirds > 0 || (i > 0 && m.layingBatchesCount > arr[i-1].layingBatchesCount)).map((data, index, filteredArr) => {
                       const events = [];
                       if (data.newBatchesThisMonth > 0) events.push({ type: 'buy', label: `+${data.newBirdsThisMonth.toLocaleString('en-IN')} Chicks (${data.newBatchesThisMonth} Batch${data.newBatchesThisMonth > 1 ? 'es':''})` });
@@ -692,47 +696,52 @@ export default function PoultrySimulator() {
                       if (data.month > 1 && data.layingBatchesCount > simulationData.monthlyData[data.month-2].layingBatchesCount) events.push({ type: 'egg', label: 'New batch started laying' });
 
                       return (
-                        <div key={`timeline-${data.month}`} className="relative flex flex-col items-center w-56 shrink-0 px-2">
-                          {/* Connecting Lines */}
-                          {index !== 0 && (
-                            <div className="absolute top-[20px] left-[-50%] w-full h-1 bg-slate-200 dark:bg-slate-700 -z-10"></div>
-                          )}
-                          {index !== filteredArr.length - 1 && (
-                            <div className="absolute top-[20px] left-[50%] w-full h-1 bg-slate-200 dark:bg-slate-700 -z-10"></div>
-                          )}
-                          
-                          {/* Event Circle */}
-                          <div className="mx-auto w-10 h-10 rounded-full border-[3px] border-white dark:border-slate-800 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 shadow-sm z-10">
-                            <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400">M{data.month}</span>
-                          </div>
+                        <div key={`timeline-${data.month}`} className="flex flex-col w-[260px] shrink-0 relative group">
+                           {/* Timeline Node */}
+                           <div className="flex flex-col items-center mb-6 relative">
+                             <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Year {data.year}</div>
+                             
+                             {/* Floating dot marker */}
+                             <div className="w-6 h-6 rounded-full bg-white dark:bg-slate-800 border-4 border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center z-10 group-hover:border-indigo-200 dark:group-hover:border-indigo-700/80 group-hover:scale-110 transition-all shadow-sm">
+                                <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                             </div>
+                             
+                             {/* Month badge */}
+                             <div className="mt-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-3 py-1 rounded-full shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-700/80 z-10">
+                               Month {data.month}
+                             </div>
+                           </div>
 
-                          {/* Content Card */}
-                          <div className="mt-4 bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700 shadow-sm w-full relative group hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
-                            <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-2">Year {data.year}</div>
-                            <div className="space-y-1.5">
-                               {events.map((ev, i) => (
-                                 <div key={i} className={`text-[11px] px-2 py-1 rounded font-medium flex items-center ${
-                                   ev.type === 'buy' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' :
-                                   ev.type === 'sell' ? 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' :
-                                   'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                                 }`}>
-                                   <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                      ev.type === 'buy' ? 'bg-indigo-500' :
-                                      ev.type === 'sell' ? 'bg-rose-500' :
-                                      'bg-amber-500'
-                                   }`}></div>
-                                   {ev.label}
-                                 </div>
-                               ))}
-                            </div>
-                            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-400 flex justify-between items-center">
-                              <span>Total Flock</span>
-                              <span className="font-bold text-slate-800 dark:text-slate-200">{data.totalActiveFlock.toLocaleString('en-IN')}</span>
-                            </div>
-                          </div>
+                           {/* Content Card */}
+                           <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-100/80 dark:border-slate-700/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_-4px_rgba(99,102,241,0.15)] dark:hover:shadow-[0_8px_30px_-4px_rgba(99,102,241,0.1)] hover:-translate-y-1 transition-all duration-300">
+                             {/* Events List */}
+                             <div className="space-y-2.5">
+                                {events.map((ev, i) => (
+                                  <div key={i} className={`text-xs px-3 py-2 rounded-xl font-semibold flex items-start gap-2.5 shadow-sm border ${
+                                    ev.type === 'buy' ? 'bg-gradient-to-r from-indigo-50/80 to-white dark:from-indigo-900/20 dark:to-slate-800 text-indigo-700 dark:text-indigo-300 border-indigo-100/50 dark:border-indigo-800/30' :
+                                    ev.type === 'sell' ? 'bg-gradient-to-r from-rose-50/80 to-white dark:from-rose-900/20 dark:to-slate-800 text-rose-700 dark:text-rose-300 border-rose-100/50 dark:border-rose-800/30' :
+                                    'bg-gradient-to-r from-amber-50/80 to-white dark:from-amber-900/20 dark:to-slate-800 text-amber-700 dark:text-amber-300 border-amber-100/50 dark:border-amber-800/30'
+                                  }`}>
+                                    <span className="mt-0.5 text-[15px] leading-none shrink-0 drop-shadow-sm">
+                                       {ev.type === 'buy' ? '🐣' : ev.type === 'sell' ? '🥩' : '🥚'}
+                                    </span>
+                                    <span className="leading-tight opacity-90">{ev.label}</span>
+                                  </div>
+                                ))}
+                             </div>
+                             
+                             {/* Footer metrics */}
+                             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/80 border-dashed flex justify-between items-center">
+                               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active Flock</span>
+                               <span className="text-sm font-black text-slate-700 dark:text-slate-100 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-700/50">
+                                 {data.totalActiveFlock.toLocaleString('en-IN')}
+                               </span>
+                             </div>
+                           </div>
                         </div>
                       )
                     })}
+                    </div>
                   </div>
                 </div>
               </div>
