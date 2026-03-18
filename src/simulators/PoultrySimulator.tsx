@@ -689,7 +689,7 @@ export default function PoultrySimulator() {
                     <div className="absolute top-[38px] left-0 w-full h-0 border-t-2 border-dashed border-slate-200 dark:border-slate-700/80 -z-10"></div>
                     
                     <div className="flex flex-row min-w-max gap-8 relative z-0">
-                    {simulationData.monthlyData.filter((m, i, arr) => m.newBatchesThisMonth > 0 || m.monthlyMeatBirds > 0 || (i > 0 && m.layingBatchesCount > arr[i-1].layingBatchesCount)).map((data, index, filteredArr) => {
+                    {simulationData.monthlyData.filter((m, i, arr) => m.newBatchesThisMonth > 0 || m.monthlyMeatBirds > 0 || (i > 0 && m.layingBatchesCount > arr[i-1].layingBatchesCount)).map((data) => {
                       const events = [];
                       if (data.newBatchesThisMonth > 0) events.push({ type: 'buy', label: `+${data.newBirdsThisMonth.toLocaleString('en-IN')} Chicks (${data.newBatchesThisMonth} Batch${data.newBatchesThisMonth > 1 ? 'es':''})` });
                       if (data.monthlyMeatBirds > 0) events.push({ type: 'sell', label: `-${data.monthlyMeatBirds.toLocaleString('en-IN')} Birds sold` });
